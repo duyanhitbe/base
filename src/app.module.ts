@@ -9,14 +9,13 @@ import { AppService } from './app.service';
 import { TypeOrmFilter } from './common/filters/typeorm.filter';
 import { CronModule } from './modules/cron/cron.module';
 import { DatabaseModule } from './modules/database/database.module';
+import { RedisModule } from './modules/redis/redis.module';
 
 @Module({
 	imports: [
-		DatabaseModule,
 		ConfigModule.forRoot({
 			isGlobal: true
 		}),
-		CronModule,
 		JwtModule.registerAsync({
 			inject: [ConfigService],
 			useFactory: () => ({
@@ -26,6 +25,9 @@ import { DatabaseModule } from './modules/database/database.module';
 		EventEmitterModule.forRoot({
 			maxListeners: 20
 		}),
+		DatabaseModule,
+		CronModule,
+		RedisModule,
 		ApisModule
 	],
 	controllers: [AppController],
