@@ -5,7 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class AdminJwtAuthGuard extends AuthGuard('admin-jwt') {
 	handleRequest<TUser = any>(err: any, user: any): TUser {
 		if (err) {
-			throw new UnauthorizedException(err);
+			throw err;
 		}
 		if (user.type !== 'admin') {
 			throw new UnauthorizedException('invalid token');

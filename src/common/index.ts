@@ -17,5 +17,6 @@ export * from './helpers/getTokenFromHeader.helper';
 export * from './decorators/use-admin-guard.decorator';
 export * from './decorators/use-application-guard.decorator';
 export * from './decorators/use-merchant-guard.decorator';
+export * from './decorators/user.decorator';
 
 export * from './constants';

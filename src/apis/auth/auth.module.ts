@@ -12,12 +12,14 @@ import { MerchantJwtStrategy } from './strategies/jwt/merchant.jwt.strategy';
 import { AdminLocalStrategy } from './strategies/local/admin.local.strategy';
 import { ApplicationLocalStrategy } from './strategies/local/application.local.strategy';
 import { MerchantLocalStrategy } from './strategies/local/merchant.local.strategy';
+import { AuthHelper } from './auth.helper';
 
 @Module({
 	imports: [PassportModule.register({}), AdminModule, ApplicationModule, MerchantModule],
 	controllers: [AuthController],
 	providers: [
 		AuthService,
+		AuthHelper,
 		AdminLocalStrategy,
 		ApplicationLocalStrategy,
 		MerchantLocalStrategy,

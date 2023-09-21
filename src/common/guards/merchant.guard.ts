@@ -5,7 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class MerchantJwtAuthGuard extends AuthGuard('merchant-jwt') {
 	handleRequest<TUser = any>(err: any, user: any): TUser {
 		if (err) {
-			throw new UnauthorizedException(err);
+			throw err;
 		}
 		if (user.type !== 'merchant') {
 			throw new UnauthorizedException('invalid token');

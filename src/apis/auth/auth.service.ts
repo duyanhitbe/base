@@ -4,17 +4,23 @@ import { ApplicationService } from '@apis/application/application.service';
 import { ApplicationEntity } from '@apis/application/entities/application.entity';
 import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
 import { MerchantService } from '@apis/merchant/merchant.service';
+import { RedisPrefix, ReqUser } from '@common';
+import { RedisService } from '@modules';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
+import { AuthHelper } from './auth.helper';
+import { UserType } from './auth.interface';
 
 @Injectable()
 export class AuthService {
 	constructor(
+		private readonly authHelper: AuthHelper,
 		private readonly adminService: AdminService,
 		private readonly applicationService: ApplicationService,
 		private readonly merchantService: MerchantService,
-		private readonly jwtService: JwtService
+		private readonly jwtService: JwtService,
+		private readonly redisService: RedisService
 	) {}
 
 	/** Xác thực tài khoản admin */
@@ -56,7 +62,7 @@ export class AuthService {
 	}
 
 	/** Xác thực tài khoản bằng id */
-	async validateById(id: string, type: 'admin' | 'application' | 'merchant') {
+	async validateById(id: string, type: UserType) {
 		let user;
 		switch (type) {
 			case 'admin':
@@ -74,29 +80,63 @@ export class AuthService {
 		}
 	}
 
+	/** Lấy key của access token trong cache */
+	private getRedisKey(id: string) {
+		return `${RedisPrefix.ACCESS_TOKEN}:${id}`;
+	}
+
+	/** Lấy danh sách token trong cache */
+	private async getListToken(id: string): Promise<string[]> {
+		const redisKey = this.getRedisKey(id);
+		const tokenString = await this.redisService.get(redisKey);
+		if (!tokenString) {
+			return [];
+		}
+		const listToken = JSON.parse(tokenString) as string[];
+		return listToken;
+	}
+
+	/** Kiểm tra token có tồn tại trong cache chưa */
+	async validateToken(token: string, id: string) {
+		const listToken = await this.getListToken(id);
+		if (!listToken.includes(token)) {
+			throw new UnauthorizedException('invalid token');
+		}
+	}
+
+	/** Lưu token vào cache */
+	private async cacheToken(id: string, accessToken: string) {
+		const redisKey = this.getRedisKey(id);
+		const listToken = await this.getListToken(id);
+		listToken.push(accessToken);
+		this.redisService.setNx(redisKey, JSON.stringify(listToken));
+	}
+
 	/** Tạo accessToken */
-	generateToken(
-		user: AdminEntity | ApplicationEntity | MerchantEntity,
-		type: 'admin' | 'application' | 'merchant'
-	) {
-		let accessToken = '';
+	async generateToken(user: AdminEntity | ApplicationEntity | MerchantEntity, type: UserType) {
 		/** Secret JWT */
 		const secret = process.env.SECRET_JWT;
-		if (type === 'admin') {
-			user = user as AdminEntity;
-			const payload = { id: user.id, type };
-			accessToken = this.jwtService.sign(payload, { secret });
-		}
-		if (type === 'application') {
-			user = user as ApplicationEntity;
-			const payload = { id: user.id, type };
-			accessToken = this.jwtService.sign(payload, { secret });
-		}
-		if (type === 'merchant') {
-			user = user as MerchantEntity;
-			const payload = { id: user.id, applicationId: user.applicationId, type };
-			accessToken = this.jwtService.sign(payload, { secret });
-		}
+		const payload = this.authHelper.getJwtPayload(user, type);
+
+		/** Generate Token */
+		const accessToken = this.jwtService.sign(payload, { secret });
+
+		/** Cache token */
+		this.cacheToken(payload.id, accessToken);
+
 		return { accessToken };
+	}
+
+	/** Đăng xuất */
+	async logout(user: ReqUser) {
+		const id = this.authHelper.getUserId(user);
+
+		/** Xóa token khỏi cache */
+		const redisKey = this.getRedisKey(id);
+		const listToken = await this.getListToken(id);
+		const updatedListToken = listToken.filter((token) => token !== user.token);
+		this.redisService.setNx(redisKey, JSON.stringify(updatedListToken));
+
+		return { success: true };
 	}
 }

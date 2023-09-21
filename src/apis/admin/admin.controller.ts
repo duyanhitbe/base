@@ -5,7 +5,9 @@ import {
 	ApiGetOne,
 	ApiUpdate,
 	PaginationDto,
-	UseAdminGuard
+	ReqUser,
+	UseAdminGuard,
+	User
 } from '@common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -48,5 +50,11 @@ export class AdminController {
 	@ApiDelete(AdminEntity, 'admin')
 	remove(@Param('id') id: string) {
 		return this.adminService.softRemoveById(id);
+	}
+
+	@Get('/info/me')
+	@ApiGetOne(AdminEntity, 'admin')
+	getMe(@User() user: ReqUser) {
+		return this.adminService.getOneByIdOrFail(user.adminId);
 	}
 }

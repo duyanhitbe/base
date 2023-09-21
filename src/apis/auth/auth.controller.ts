@@ -1,9 +1,10 @@
 import { AdminEntity } from '@apis/admin/entities/admin.entity';
 import { ApplicationEntity } from '@apis/application/entities/application.entity';
 import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { ReqUser, UseAdminGuard, UseApplicationGuard, UseMerchantGuard, User } from '@common';
+import { Body, Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { GenerateTokenAdminDto } from './dto/generate-token-admin.dto';
@@ -17,8 +18,9 @@ export class AuthController {
 
 	@Post('generate-token/admin')
 	@UseGuards(AuthGuard('admin-local'))
+	@HttpCode(200)
 	@ApiOperation({ summary: 'Generate token cho Admin' })
-	@ApiResponse({
+	@ApiOkResponse({
 		schema: {
 			properties: {
 				accessToken: { example: 'string' }
@@ -32,8 +34,9 @@ export class AuthController {
 
 	@Post('generate-token/application')
 	@UseGuards(AuthGuard('application-local'))
+	@HttpCode(200)
 	@ApiOperation({ summary: 'Generate token cho Application' })
-	@ApiResponse({
+	@ApiOkResponse({
 		schema: {
 			properties: {
 				accessToken: { example: 'string' }
@@ -47,8 +50,9 @@ export class AuthController {
 
 	@Post('generate-token/merchant')
 	@UseGuards(AuthGuard('merchant-local'))
+	@HttpCode(200)
 	@ApiOperation({ summary: 'Generate token cho Merchant' })
-	@ApiResponse({
+	@ApiOkResponse({
 		schema: {
 			properties: {
 				accessToken: { example: 'string' }
@@ -58,5 +62,50 @@ export class AuthController {
 	generateTokenMerchant(@Req() req: Request, @Body() _body: GenerateTokenMerchantDto) {
 		const user = req.user as MerchantEntity;
 		return this.authService.generateToken(user, 'merchant');
+	}
+
+	@Post('logout/admin')
+	@ApiOperation({ summary: 'Đăng xuất admin' })
+	@UseAdminGuard()
+	@HttpCode(200)
+	@ApiOkResponse({
+		schema: {
+			properties: {
+				success: { example: true }
+			}
+		}
+	})
+	logoutAdmin(@User() user: ReqUser) {
+		return this.authService.logout(user);
+	}
+
+	@Post('logout/application')
+	@ApiOperation({ summary: 'Đăng xuất application' })
+	@UseApplicationGuard()
+	@HttpCode(200)
+	@ApiOkResponse({
+		schema: {
+			properties: {
+				success: { example: true }
+			}
+		}
+	})
+	logoutApplication(@User() user: ReqUser) {
+		return this.authService.logout(user);
+	}
+
+	@Post('logout/merchant')
+	@ApiOperation({ summary: 'Đăng xuất merchant' })
+	@UseMerchantGuard()
+	@HttpCode(200)
+	@ApiOkResponse({
+		schema: {
+			properties: {
+				success: { example: true }
+			}
+		}
+	})
+	logoutMerchant(@User() user: ReqUser) {
+		return this.authService.logout(user);
 	}
 }
