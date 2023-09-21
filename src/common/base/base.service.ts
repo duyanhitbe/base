@@ -22,8 +22,12 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 	}
 
 	async createMany(data: DeepPartial<T>[]): Promise<T[]> {
-		const newEntities = this.repository.create(data);
-		return Promise.all(newEntities.map((entity) => entity.save()));
+		const result: T[] = [];
+		for (let i = 0; i < data.length; i++) {
+			const newEntity = await this.create(data[i]);
+			result.push(newEntity);
+		}
+		return result;
 	}
 
 	getOne(options: FindOptions<T>): Promise<T | null> {
@@ -103,41 +107,46 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 	): Promise<T[]> {
 		const where = options.where;
 		const result: T[] = [];
-		/** Danh sách cần tạo mới */
-		const listEntityShouldCreate = data.filter((item) => !Boolean(item.id));
 		/** Danh sách cần cập nhật */
-		const listEntityShouldUpdate = data.filter((item) => Boolean(item.id));
-		const listEntityIdShouldUpdate = listEntityShouldUpdate.map((item) => item.id);
+		const listEntityShouldUpdate: any[] = [];
 		/** Danh sách cần xóa */
 		const listEntityShouldDelete: T[] = [];
 
-		/** Danh sách hiện tại */
-		const oldEntities = await this.getAll({ where });
-		/** Tìm kiếm những cần phải xóa */
-		oldEntities.forEach((entity) => {
-			if (!listEntityIdShouldUpdate.includes(entity.id)) {
-				listEntityShouldDelete.push(entity);
+		for (let i = 0; i < data.length; i++) {
+			const dto = data[i];
+
+			/** Tạo */
+			if (!Boolean(dto.id)) {
+				const newEntity = await this.create(dto as any);
+				result.push(newEntity);
+				listEntityShouldUpdate.push(newEntity);
 			}
-		});
 
-		/** Tạo mới */
-		const newEntities = await this.createMany(listEntityShouldCreate as any);
-		result.push(...newEntities);
+			/** Cập nhật */
+			if (Boolean(dto.id)) {
+				const updatedEntity = await this.updateById(dto.id || '', dto);
+				listEntityShouldUpdate.push(dto);
+				result.push(updatedEntity);
+			}
+		}
 
-		/** Cập nhật */
-		const updatedEntities = await Promise.all(
-			listEntityShouldUpdate.map((entityShouldUpdate) =>
-				this.updateById(entityShouldUpdate.id || '', entityShouldUpdate)
-			)
-		);
-		result.push(...updatedEntities);
-
-		/** Xóa */
-		await Promise.all(
-			listEntityShouldDelete.map((entityShouldDelete) =>
-				this.softRemoveById(entityShouldDelete.id || '')
-			)
-		);
+		if (listEntityShouldUpdate.length > 0) {
+			const listEntityIdShouldUpdate = listEntityShouldUpdate.map((item) => item.id);
+			/** Danh sách hiện tại */
+			const oldEntities = await this.getAll({ where });
+			/** Tìm kiếm những cần phải xóa */
+			oldEntities.forEach((entity) => {
+				if (!listEntityIdShouldUpdate.includes(entity.id)) {
+					listEntityShouldDelete.push(entity);
+				}
+			});
+			/** Xóa */
+			await Promise.all(
+				listEntityShouldDelete.map((entityShouldDelete) =>
+					this.softRemoveById(entityShouldDelete.id || '')
+				)
+			);
+		}
 
 		return result;
 	}
