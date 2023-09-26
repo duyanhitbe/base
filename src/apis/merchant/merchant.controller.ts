@@ -4,6 +4,7 @@ import {
 	ApiGetAll,
 	ApiGetOne,
 	ApiUpdate,
+	GetAllQueryDto,
 	PaginationDto,
 	ReqUser,
 	UseApplicationGuard,
@@ -11,7 +12,7 @@ import {
 	User
 } from '@common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiParam, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { Request } from 'express';
 import { CreateMerchantDto } from './dto/create-merchant.dto';
 import { UpdateMerchantDto } from './dto/update-merchant.dto';
@@ -43,7 +44,14 @@ export class MerchantController {
 	@Get(':id')
 	@UseApplicationGuard()
 	@ApiGetOne(MerchantEntity, 'merchant')
-	getOne(@Param('id') id: string) {
+	@ApiParam({ name: 'id', description: 'Truyền all nếu muốn lấy tất cả' })
+	getOne(@Param('id') id: string, @Query() query: GetAllQueryDto) {
+		if (id === 'all') {
+			return this.merchantService.getAll({
+				...query,
+				order: query.sort ? JSON.parse(query.sort) : {}
+			});
+		}
 		return this.merchantService.getOneById(id);
 	}
 
@@ -63,7 +71,8 @@ export class MerchantController {
 
 	@Get('/info/me')
 	@UseMerchantGuard()
-	@ApiGetOne(MerchantEntity, 'merchant')
+	@ApiOperation({ summary: 'Lấy thông tin merchant đang đăng nhập' })
+	@ApiOkResponse({ schema: { $ref: getSchemaPath(MerchantEntity) } })
 	getMe(@User() user: ReqUser) {
 		return this.merchantService.getOneByIdOrFail(user.merchantId);
 	}

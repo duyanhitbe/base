@@ -8,7 +8,7 @@ import {
 } from '@common';
 import { NotFoundException } from '@nestjs/common';
 import { extend, omit } from 'lodash';
-import { DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
+import { DeepPartial, FindOptionsWhere, ILike, Like, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { AbstractBaseService } from '../interfaces/base-service.interface';
 
@@ -31,12 +31,22 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 	}
 
 	getOne(options: FindOptions<T>): Promise<T | null> {
-		const { where, relations } = options;
+		const { relations } = options;
+		const where = options.where || {};
+		const filter = JSON.parse(options.filter || '{}');
+		for (const field in filter) {
+			where[field] = Like(`%${filter[field]}%`);
+		}
 		return this.repository.findOne({ where, relations });
 	}
 
 	async getOneOrFail(options: FindOrFailOptions<T>): Promise<T> {
-		const { where, relations, errorMessage } = options;
+		const { relations, errorMessage } = options;
+		const where = options.where || {};
+		const filter = JSON.parse(options.filter || '{}');
+		for (const field in filter) {
+			where[field] = Like(`%${filter[field]}%`);
+		}
 		const entity = await this.repository.findOne({ where, relations });
 		if (!entity) {
 			throw new NotFoundException(errorMessage || 'Entity not found');
@@ -61,7 +71,12 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 	}
 
 	getAll(options: Partial<FindOptions<T>>): Promise<T[]> {
-		const { where, relations, order } = options;
+		const { relations, order } = options;
+		const where = options.where || {};
+		const filter = JSON.parse(options.filter || '{}');
+		for (const field in filter) {
+			where[field] = Like(`%${filter[field]}%`);
+		}
 		return this.repository.find({
 			where,
 			relations,
@@ -72,14 +87,20 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 	async getAllWithPagination(
 		options: FindWithPaginationOptions<T>
 	): Promise<IPaginationResponse<T>> {
-		const { where, relations, sort } = options;
+		const where = options.where || {};
+		const filter = JSON.parse(options.filter || '{}');
+		const order = JSON.parse(options.sort || '{}');
+		const relations = options.relations;
 		const limit = +(options.limit || 10);
 		const page = +(options.page || 1);
 		const take = limit;
 		const skip = limit * (+page - 1);
+		for (const field in filter) {
+			where[field] = ILike(`%${filter[field]}%`);
+		}
 		const [data, total] = await this.repository.findAndCount({
 			where,
-			order: JSON.parse(sort || '{}'),
+			order,
 			relations,
 			take,
 			skip

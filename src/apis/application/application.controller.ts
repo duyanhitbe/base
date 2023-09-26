@@ -4,6 +4,7 @@ import {
 	ApiGetAll,
 	ApiGetOne,
 	ApiUpdate,
+	GetAllQueryDto,
 	PaginationDto,
 	ReqUser,
 	UseAdminGuard,
@@ -11,7 +12,7 @@ import {
 	User
 } from '@common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApplicationService } from './application.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
@@ -39,7 +40,14 @@ export class ApplicationController {
 	@Get(':id')
 	@UseAdminGuard()
 	@ApiGetOne(ApplicationEntity, 'application')
-	getOne(@Param('id') id: string) {
+	@ApiParam({ name: 'id', description: 'Truyền all nếu muốn lấy tất cả' })
+	getOne(@Param('id') id: string, @Query() query: GetAllQueryDto) {
+		if (id === 'all') {
+			return this.applicationService.getAll({
+				...query,
+				order: query.sort ? JSON.parse(query.sort) : {}
+			});
+		}
 		return this.applicationService.getOneById(id);
 	}
 

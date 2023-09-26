@@ -4,13 +4,14 @@ import {
 	ApiGetAll,
 	ApiGetOne,
 	ApiUpdate,
+	GetAllQueryDto,
 	PaginationDto,
 	ReqUser,
 	UseAdminGuard,
 	User
 } from '@common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiParam, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
@@ -36,7 +37,18 @@ export class AdminController {
 
 	@Get(':id')
 	@ApiGetOne(AdminEntity, 'admin')
-	getOne(@Param('id') id: string) {
+	@ApiParam({ name: 'id', description: 'Truyền all nếu muốn lấy tất cả' })
+	getOne(
+		@Param('id')
+		id: string,
+		@Query() query: GetAllQueryDto
+	) {
+		if (id === 'all') {
+			return this.adminService.getAll({
+				...query,
+				order: query.sort ? JSON.parse(query.sort) : {}
+			});
+		}
 		return this.adminService.getOneById(id);
 	}
 
@@ -53,7 +65,8 @@ export class AdminController {
 	}
 
 	@Get('/info/me')
-	@ApiGetOne(AdminEntity, 'admin')
+	@ApiOperation({ summary: 'Lấy thông tin admin đang đăng nhập' })
+	@ApiOkResponse({ schema: { $ref: getSchemaPath(AdminEntity) } })
 	getMe(@User() user: ReqUser) {
 		return this.adminService.getOneByIdOrFail(user.adminId);
 	}
