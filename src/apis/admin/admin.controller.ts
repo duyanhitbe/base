@@ -23,19 +23,19 @@ export class AdminController {
 	constructor(private readonly adminService: IAdminService) {}
 
 	@Post()
-	@ApiCreate(AdminEntity, 'admin')
+	@ApiCreate(AdminEntity, 'Admin')
 	create(@Body() createAdminDto: CreateAdminDto) {
 		return this.adminService.create(createAdminDto);
 	}
 
 	@Get()
-	@ApiGetAll(AdminEntity, 'admin')
+	@ApiGetAll(AdminEntity, 'Admin')
 	getAll(@Query() query: PaginationDto) {
 		return this.adminService.getAllWithPagination(query);
 	}
 
 	@Get(':id')
-	@ApiGetOne(AdminEntity, 'admin')
+	@ApiGetOne(AdminEntity, 'Admin')
 	@ApiParam({ name: 'id', description: 'Truyền all nếu muốn lấy tất cả' })
 	getOne(
 		@Param('id')
@@ -52,13 +52,13 @@ export class AdminController {
 	}
 
 	@Patch(':id')
-	@ApiUpdate(AdminEntity, 'admin')
+	@ApiUpdate(AdminEntity, 'Admin')
 	update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
 		return this.adminService.updateById(id, updateAdminDto);
 	}
 
 	@Delete(':id')
-	@ApiDelete(AdminEntity, 'admin')
+	@ApiDelete(AdminEntity, 'Admin')
 	remove(@Param('id') id: string) {
 		return this.adminService.softRemoveById(id);
 	}

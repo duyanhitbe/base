@@ -25,7 +25,7 @@ export class MerchantController {
 
 	@Post()
 	@UseApplicationGuard()
-	@ApiCreate(MerchantEntity, 'merchant')
+	@ApiCreate(MerchantEntity, 'Merchant')
 	create(@Req() req: Request, @Body() createMerchantDto: CreateMerchantDto) {
 		/** Bao gồm applicationId và type */
 		const jwtPayload = req.user || {};
@@ -35,14 +35,14 @@ export class MerchantController {
 
 	@Get()
 	@UseApplicationGuard()
-	@ApiGetAll(MerchantEntity, 'merchant')
+	@ApiGetAll(MerchantEntity, 'Merchant')
 	getAll(@Query() query: PaginationDto) {
 		return this.merchantService.getAllWithPagination(query);
 	}
 
 	@Get(':id')
 	@UseApplicationGuard()
-	@ApiGetOne(MerchantEntity, 'merchant')
+	@ApiGetOne(MerchantEntity, 'Merchant')
 	@ApiParam({ name: 'id', description: 'Truyền all nếu muốn lấy tất cả' })
 	getOne(@Param('id') id: string, @Query() query: GetAllQueryDto) {
 		if (id === 'all') {
@@ -56,14 +56,14 @@ export class MerchantController {
 
 	@Patch(':id')
 	@UseApplicationGuard()
-	@ApiUpdate(MerchantEntity, 'merchant')
+	@ApiUpdate(MerchantEntity, 'Merchant')
 	update(@Param('id') id: string, @Body() updateMerchantDto: UpdateMerchantDto) {
 		return this.merchantService.updateById(id, updateMerchantDto);
 	}
 
 	@Delete(':id')
 	@UseApplicationGuard()
-	@ApiDelete(MerchantEntity, 'merchant')
+	@ApiDelete(MerchantEntity, 'Merchant')
 	remove(@Param('id') id: string) {
 		return this.merchantService.softRemoveById(id);
 	}

@@ -5,6 +5,8 @@ import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
+import { AuthHelper } from './auth.helper';
+import { IAuthService } from './auth.interface';
 import { AuthService } from './auth.service';
 import { AdminJwtStrategy } from './strategies/jwt/admin.jwt.strategy';
 import { ApplicationJwtStrategy } from './strategies/jwt/application.jwt.strategy';
@@ -12,13 +14,15 @@ import { MerchantJwtStrategy } from './strategies/jwt/merchant.jwt.strategy';
 import { AdminLocalStrategy } from './strategies/local/admin.local.strategy';
 import { ApplicationLocalStrategy } from './strategies/local/application.local.strategy';
 import { MerchantLocalStrategy } from './strategies/local/merchant.local.strategy';
-import { AuthHelper } from './auth.helper';
 
 @Module({
 	imports: [PassportModule.register({}), AdminModule, ApplicationModule, MerchantModule],
 	controllers: [AuthController],
 	providers: [
-		AuthService,
+		{
+			provide: IAuthService,
+			useClass: AuthService
+		},
 		AuthHelper,
 		AdminLocalStrategy,
 		ApplicationLocalStrategy,
@@ -28,6 +32,6 @@ import { AuthHelper } from './auth.helper';
 		MerchantJwtStrategy,
 		JwtService
 	],
-	exports: [AuthService]
+	exports: [IAuthService]
 })
 export class AuthModule {}

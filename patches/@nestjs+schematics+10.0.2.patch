@@ -1,133 +1,242 @@
+diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.__specFileSuffix__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.__specFileSuffix__.ts
+deleted file mode 100644
+index 17e5843..0000000
+--- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.__specFileSuffix__.ts
++++ /dev/null
+@@ -1,20 +0,0 @@
+-import { Test, TestingModule } from '@nestjs/testing';
+-import { <%= classify(name) %>Controller } from './<%= name %>.controller';
+-import { <%= classify(name) %>Service } from './<%= name %>.service';
+-
+-describe('<%= classify(name) %>Controller', () => {
+-  let controller: <%= classify(name) %>Controller;
+-
+-  beforeEach(async () => {
+-    const module: TestingModule = await Test.createTestingModule({
+-      controllers: [<%= classify(name) %>Controller],
+-      providers: [<%= classify(name) %>Service],
+-    }).compile();
+-
+-    controller = module.get<<%= classify(name) %>Controller>(<%= classify(name) %>Controller);
+-  });
+-
+-  it('should be defined', () => {
+-    expect(controller).toBeDefined();
+-  });
+-});
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts
-index 8d1b7b4..dfb5f0f 100644
+index 8d1b7b4..eacab6f 100644
 --- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts
-@@ -1,4 +1,23 @@
+@@ -1,63 +1,56 @@
 -<% if (crud && type === 'rest') { %>import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';<%
-+<% if (crud && type === 'rest') { %>import {
-+  ApiCreate,
-+  ApiDelete,
-+  ApiGetAll,
-+  ApiGetOne,
-+  ApiUpdate,
-+  PaginationDto,
-+} from '@common';
-+import {
-+  Body,
-+  Controller,
-+  Delete,
-+  Get,
-+  Param,
-+  Patch,
-+  Post,
-+  Query,
-+} from '@nestjs/common';
-+import { ApiTags } from '@nestjs/swagger';
-+import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';<%
- } else if (crud && type === 'microservice') { %>import { Controller } from '@nestjs/common';
- import { MessagePattern, Payload } from '@nestjs/microservices';<%
- } else { %>import { Controller } from '@nestjs/common';<%
-@@ -7,33 +26,39 @@ import { <%= classify(name) %>Service } from './<%= name %>.service';<% if (crud
- import { Create<%= singular(classify(name)) %>Dto } from './dto/create-<%= singular(name) %>.dto';
- import { Update<%= singular(classify(name)) %>Dto } from './dto/update-<%= singular(name) %>.dto';<% } %>
- 
+-} else if (crud && type === 'microservice') { %>import { Controller } from '@nestjs/common';
+-import { MessagePattern, Payload } from '@nestjs/microservices';<%
+-} else { %>import { Controller } from '@nestjs/common';<%
+-} %>
+-import { <%= classify(name) %>Service } from './<%= name %>.service';<% if (crud) { %>
+-import { Create<%= singular(classify(name)) %>Dto } from './dto/create-<%= singular(name) %>.dto';
+-import { Update<%= singular(classify(name)) %>Dto } from './dto/update-<%= singular(name) %>.dto';<% } %>
+-
 -<% if (type === 'rest') { %>@Controller('<%= dasherize(name) %>')<% } else { %>@Controller()<% } %>
-+<% if (type === 'rest') { %>@Controller('<%= dasherize(name) %>')
-+@ApiTags('<%= classify(name) %> API')<% } else { %>@Controller()<% } %>
++import {
++	ApiCreate,
++	ApiDelete,
++	ApiGetAll,
++	ApiGetOne,
++	ApiUpdate,
++	GetAllQueryDto,
++	PaginationDto
++} from '@common';
++import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
++import { ApiParam, ApiTags } from '@nestjs/swagger';
++import { Create<%= classify(name) %>Dto } from './dto/create-<%= name %>.dto';
++import { Update<%= classify(name) %>Dto } from './dto/update-<%= name %>.dto';
++import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';
++import { I<%= classify(name) %>Service } from './<%= name %>.interface';
++
++@Controller('<%= name %>')
++@ApiTags('<%= classify(name) %> API')
  export class <%= classify(name) %>Controller {
-   constructor(private readonly <%= lowercased(name) %>Service: <%= classify(name) %>Service) {}<% if (type === 'rest' && crud) { %>
- 
-   @Post()
-+  @ApiCreate(<%= classify(name) %>Entity, '<%= name %>')
-   create(@Body() create<%= singular(classify(name)) %>Dto: Create<%= singular(classify(name)) %>Dto) {
-     return this.<%= lowercased(name) %>Service.create(create<%= singular(classify(name)) %>Dto);
-   }
- 
-   @Get()
+-  constructor(private readonly <%= lowercased(name) %>Service: <%= classify(name) %>Service) {}<% if (type === 'rest' && crud) { %>
+-
+-  @Post()
+-  create(@Body() create<%= singular(classify(name)) %>Dto: Create<%= singular(classify(name)) %>Dto) {
+-    return this.<%= lowercased(name) %>Service.create(create<%= singular(classify(name)) %>Dto);
+-  }
+-
+-  @Get()
 -  findAll() {
 -    return this.<%= lowercased(name) %>Service.findAll();
-+  @ApiGetAll(<%= classify(name) %>Entity, '<%= name %>')
-+  getAll(@Query() query: PaginationDto) {
-+    return this.<%= lowercased(name) %>Service.getAllWithPagination(query);
-   }
- 
-   @Get(':id')
+-  }
+-
+-  @Get(':id')
 -  findOne(@Param('id') id: string) {
 -    return this.<%= lowercased(name) %>Service.findOne(+id);
-+  @ApiGetOne(<%= classify(name) %>Entity, '<%= name %>')
-+  getOne(@Param('id') id: string) {
-+    return this.<%= lowercased(name) %>Service.getOneById(id);
-   }
- 
-   @Patch(':id')
-+  @ApiUpdate(<%= classify(name) %>Entity, '<%= name %>')
-   update(@Param('id') id: string, @Body() update<%= singular(classify(name)) %>Dto: Update<%= singular(classify(name)) %>Dto) {
+-  }
+-
+-  @Patch(':id')
+-  update(@Param('id') id: string, @Body() update<%= singular(classify(name)) %>Dto: Update<%= singular(classify(name)) %>Dto) {
 -    return this.<%= lowercased(name) %>Service.update(+id, update<%= singular(classify(name)) %>Dto);
-+    return this.<%= lowercased(name) %>Service.updateById(id, update<%= singular(classify(name)) %>Dto);
-   }
- 
-   @Delete(':id')
-+  @ApiDelete(<%= classify(name) %>Entity, '<%= name %>')
-   remove(@Param('id') id: string) {
+-  }
+-
+-  @Delete(':id')
+-  remove(@Param('id') id: string) {
 -    return this.<%= lowercased(name) %>Service.remove(+id);
-+    return this.<%= lowercased(name) %>Service.softRemoveById(id);
-   }<% } else if (type === 'microservice' && crud) { %>
- 
-   @MessagePattern('create<%= singular(classify(name)) %>')
+-  }<% } else if (type === 'microservice' && crud) { %>
+-
+-  @MessagePattern('create<%= singular(classify(name)) %>')
+-  create(@Payload() create<%= singular(classify(name)) %>Dto: Create<%= singular(classify(name)) %>Dto) {
+-    return this.<%= lowercased(name) %>Service.create(create<%= singular(classify(name)) %>Dto);
+-  }
+-
+-  @MessagePattern('findAll<%= classify(name) %>')
+-  findAll() {
+-    return this.<%= lowercased(name) %>Service.findAll();
+-  }
+-
+-  @MessagePattern('findOne<%= singular(classify(name)) %>')
+-  findOne(@Payload() id: number) {
+-    return this.<%= lowercased(name) %>Service.findOne(id);
+-  }
+-
+-  @MessagePattern('update<%= singular(classify(name)) %>')
+-  update(@Payload() update<%= singular(classify(name)) %>Dto: Update<%= singular(classify(name)) %>Dto) {
+-    return this.<%= lowercased(name) %>Service.update(update<%= singular(classify(name)) %>Dto.id, update<%= singular(classify(name)) %>Dto);
+-  }
+-
+-  @MessagePattern('remove<%= singular(classify(name)) %>')
+-  remove(@Payload() id: number) {
+-    return this.<%= lowercased(name) %>Service.remove(id);
+-  }<% } %>
++	constructor(private readonly <%= lowercased(name) %>Service: I<%= classify(name) %>Service) {}
++
++	@Post()
++	@ApiCreate(<%= classify(name) %>Entity, '<%= classify(name) %>')
++	create(@Body() create<%= classify(name) %>Dto: Create<%= classify(name) %>Dto) {
++		return this.<%= lowercased(name) %>Service.create(create<%= classify(name) %>Dto);
++	}
++
++	@Get()
++	@ApiGetAll(<%= classify(name) %>Entity, '<%= classify(name) %>')
++	getAll(@Query() query: PaginationDto) {
++		return this.<%= lowercased(name) %>Service.getAllWithPagination(query);
++	}
++
++	@Get(':id')
++	@ApiGetOne(<%= classify(name) %>Entity, '<%= classify(name) %>')
++	@ApiParam({ name: 'id', description: 'Truyền all nếu muốn lấy tất cả' })
++	getOne(@Param('id') id: string, @Query() query: GetAllQueryDto) {
++		if (id === 'all') {
++			query['order'] = query.sort ? JSON.parse(query.sort) : {};
++			return this.<%= lowercased(name) %>Service.getAll(query);
++		}
++		return this.<%= lowercased(name) %>Service.getOneById(id);
++	}
++
++	@Patch(':id')
++	@ApiUpdate(<%= classify(name) %>Entity, '<%= classify(name) %>')
++	update(@Param('id') id: string, @Body() update<%= classify(name) %>Dto: Update<%= classify(name) %>Dto) {
++		return this.<%= lowercased(name) %>Service.updateById(id, update<%= classify(name) %>Dto);
++	}
++
++	@Delete(':id')
++	@ApiDelete(<%= classify(name) %>Entity, '<%= classify(name) %>')
++	remove(@Param('id') id: string) {
++		return this.<%= lowercased(name) %>Service.softRemoveById(id);
++	}
+ }
+diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.interface.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.interface.ts
+new file mode 100644
+index 0000000..128197f
+--- /dev/null
++++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.interface.ts
+@@ -0,0 +1,4 @@
++import { BaseService } from '@common';
++import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';
++
++export abstract class I<%= classify(name) %>Service extends BaseService<<%= classify(name) %>Entity> {}
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts
-index 78a5afc..978af20 100644
+index 78a5afc..cb4536e 100644
 --- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts
-@@ -1,9 +1,15 @@
+@@ -1,9 +1,21 @@
  import { Module } from '@nestjs/common';
- import { <%= classify(name) %>Service } from './<%= name %>.service';
++import { TypeOrmModule } from '@nestjs/typeorm';
++import { <%= classify(name) %>Controller } from './<%= name %>.controller';
++import { I<%= classify(name) %>Service } from './<%= name %>.interface';
 +import { <%= classify(name) %>Repository } from './<%= name %>.repository';
- <% if (type === 'rest' || type === 'microservice') { %>import { <%= classify(name) %>Controller } from './<%= name %>.controller';<% } %><% if (type === 'graphql-code-first' || type === 'graphql-schema-first') { %>import { <%= classify(name) %>Resolver } from './<%= name %>.resolver';<% } %><% if (type === 'ws') { %>import { <%= classify(name) %>Gateway } from './<%= name %>.gateway';<% } %>
-+<% if (crud) { %>import { TypeOrmModule } from '@nestjs/typeorm';
-+import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';<% } %>
-+import { TestModule } from './apis/test/test.module';
+ import { <%= classify(name) %>Service } from './<%= name %>.service';
+-<% if (type === 'rest' || type === 'microservice') { %>import { <%= classify(name) %>Controller } from './<%= name %>.controller';<% } %><% if (type === 'graphql-code-first' || type === 'graphql-schema-first') { %>import { <%= classify(name) %>Resolver } from './<%= name %>.resolver';<% } %><% if (type === 'ws') { %>import { <%= classify(name) %>Gateway } from './<%= name %>.gateway';<% } %>
++import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';
  
  @Module({
-+  <% if (crud) { %>imports: [TypeOrmModule.forFeature([<%= classify(name) %>Entity])],<% } %>
-   <% if (type === 'rest' || type === 'microservice') { %>controllers: [<%= classify(name) %>Controller],
+-  <% if (type === 'rest' || type === 'microservice') { %>controllers: [<%= classify(name) %>Controller],
 -  providers: [<%= classify(name) %>Service],<% } else if (type === 'graphql-code-first' || type === 'graphql-schema-first') { %>providers: [<%= classify(name) %>Resolver, <%= classify(name) %>Service],<% } else { %>providers: [<%= classify(name) %>Gateway, <%= classify(name) %>Service],<% } %>
-+  providers: [<%= classify(name) %>Service, <%= classify(name) %>Repository],<% } else if (type === 'graphql-code-first' || type === 'graphql-schema-first') { %>providers: [<%= classify(name) %>Resolver, <%= classify(name) %>Service],<% } else { %>providers: [<%= classify(name) %>Gateway, <%= classify(name) %>Service],<% } %>
-+  <% if (type === 'rest') {%>exports: [<%= classify(name) %>Service]<%}%>
++	imports: [TypeOrmModule.forFeature([<%= classify(name) %>Entity])],
++	controllers: [<%= classify(name) %>Controller],
++	providers: [
++		{
++			provide: I<%= classify(name) %>Service,
++			useClass: <%= classify(name) %>Service
++		},
++		<%= classify(name) %>Repository
++	],
++	exports: [I<%= classify(name) %>Service]
  })
  export class <%= classify(name) %>Module {}
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.repository.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.repository.ts
 new file mode 100644
-index 0000000..fef4d76
+index 0000000..e517f82
 --- /dev/null
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.repository.ts
-@@ -0,0 +1,11 @@
-+import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';
+@@ -0,0 +1,9 @@
++import { <%= classify(name) %>Entity } from '@apis/<%= name %>/entities/<%= name %>.entity';
 +import { InjectRepository } from '@nestjs/typeorm';
 +import { Repository } from 'typeorm';
 +
 +export class <%= classify(name) %>Repository extends Repository<<%= classify(name) %>Entity> {
-+	constructor(
-+		@InjectRepository(<%= classify(name) %>Entity) private readonly <%= name %>Repo: Repository<<%= classify(name) %>Entity>
-+	) {
-+		super(<%= name %>Repo.target, <%= name %>Repo.manager, <%= name %>Repo.queryRunner);
++	constructor(@InjectRepository(<%= classify(name) %>Entity) private readonly <%= lowercased(name) %>Repo: Repository<<%= classify(name) %>Entity>) {
++		super(<%= lowercased(name) %>Repo.target, <%= lowercased(name) %>Repo.manager, <%= lowercased(name) %>Repo.queryRunner);
 +	}
 +}
+diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.service.__specFileSuffix__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.service.__specFileSuffix__.ts
+deleted file mode 100644
+index 2b3f38b..0000000
+--- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.service.__specFileSuffix__.ts
++++ /dev/null
+@@ -1,18 +0,0 @@
+-import { Test, TestingModule } from '@nestjs/testing';
+-import { <%= classify(name) %>Service } from './<%= name %>.service';
+-
+-describe('<%= classify(name) %>Service', () => {
+-  let service: <%= classify(name) %>Service;
+-
+-  beforeEach(async () => {
+-    const module: TestingModule = await Test.createTestingModule({
+-      providers: [<%= classify(name) %>Service],
+-    }).compile();
+-
+-    service = module.get<<%= classify(name) %>Service>(<%= classify(name) %>Service);
+-  });
+-
+-  it('should be defined', () => {
+-    expect(service).toBeDefined();
+-  });
+-});
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.service.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.service.ts
-index 21943aa..9544867 100644
+index 21943aa..46d13e0 100644
 --- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.service.ts
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.service.ts
-@@ -1,28 +1,13 @@
+@@ -1,28 +1,10 @@
 -import { Injectable } from '@nestjs/common';<% if (crud && type !== 'graphql-code-first' && type !== 'graphql-schema-first') { %>
 -import { Create<%= singular(classify(name)) %>Dto } from './dto/create-<%= singular(name) %>.dto';
 -import { Update<%= singular(classify(name)) %>Dto } from './dto/update-<%= singular(name) %>.dto';<% } else if (crud) { %>
 -import { Create<%= singular(classify(name)) %>Input } from './dto/create-<%= singular(name) %>.input';
 -import { Update<%= singular(classify(name)) %>Input } from './dto/update-<%= singular(name) %>.input';<% } %>
 +import { Injectable } from '@nestjs/common';
-+<% if (crud) { %>import { BaseService } from '@common';
-+import { InjectRepository } from '@nestjs/typeorm';
-+import { Repository } from 'typeorm';
++import { I<%= classify(name) %>Service } from './<%= name %>.interface';
 +import { <%= classify(name) %>Repository } from './<%= name %>.repository';
-+import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';<% } %>
  
  @Injectable()
 -export class <%= classify(name) %>Service {<% if (crud) { %>
@@ -151,43 +260,61 @@ index 21943aa..9544867 100644
 -    return `This action removes a #${id} <%= lowercased(singular(classify(name))) %>`;
 -  }
 -<% } %>}
-+export class <%= classify(name) %>Service <% if (crud) { %>extends BaseService<<%= classify(name) %>Entity> <% } %>{<% if (crud) { %>
-+  constructor(private readonly <%= name %>Repo: <%= classify(name) %>Repository) {
-+    super(<%= lowercased(name) %>Repo);
-+  }<%} %>
++export class <%= classify(name) %>Service extends I<%= classify(name) %>Service {
++	constructor(private readonly <%= lowercased(name) %>Repo: <%= classify(name) %>Repository) {
++		super(<%= lowercased(name) %>Repo);
++	}
 +}
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/entities/__name@singular@ent__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/entities/__name@singular@ent__.ts
-index 362e741..ccaa162 100644
+index 362e741..874cdfb 100644
 --- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/entities/__name@singular@ent__.ts
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/entities/__name@singular@ent__.ts
-@@ -4,4 +4,8 @@
- export class <%= singular(classify(name)) %> {
-   @Field(() => Int, { description: 'Example field (placeholder)' })
-   exampleField: number;
+@@ -1,7 +1,5 @@
+-<% if (type === 'graphql-code-first') { %>import { ObjectType, Field, Int } from '@nestjs/graphql';
++import { BaseEntityWithMerchant, SCHEMA } from '@common';
++import { Entity } from 'typeorm';
+ 
+-@ObjectType()
+-export class <%= singular(classify(name)) %> {
+-  @Field(() => Int, { description: 'Example field (placeholder)' })
+-  exampleField: number;
 -}<% } else { %>export class <%= singular(classify(name)) %> {}<% } %>
-+}<% } else { %>import { Entity } from 'typeorm';
-+import { BaseEntityWithMerchant } from '@common';
-+
-+@Entity({ name: '<%= singular(name) %>', schema: 'minigame' })
-+export class <%= singular(classify(name)) %>Entity extends BaseEntityWithMerchant {}<% } %>
-diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.__specFileSuffix__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.controller.__specFileSuffix__.ts
-similarity index 75%
-rename from node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.__specFileSuffix__.ts
-rename to node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.controller.__specFileSuffix__.ts
-index 17e5843..d417320 100644
---- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.__specFileSuffix__.ts
++@Entity({ name: '<%= name %>', schema: SCHEMA })
++export class <%= classify(name) %>Entity extends BaseEntityWithMerchant {}
+diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.controller.__specFileSuffix__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.controller.__specFileSuffix__.ts
+new file mode 100644
+index 0000000..6138c0e
+--- /dev/null
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.controller.__specFileSuffix__.ts
-@@ -1,6 +1,8 @@
- import { Test, TestingModule } from '@nestjs/testing';
--import { <%= classify(name) %>Controller } from './<%= name %>.controller';
--import { <%= classify(name) %>Service } from './<%= name %>.service';
+@@ -0,0 +1,28 @@
++import { Test, TestingModule } from '@nestjs/testing';
 +import { <%= classify(name) %>Controller } from '../<%= name %>.controller';
++import { I<%= classify(name) %>Service } from '../<%= name %>.interface';
 +import { <%= classify(name) %>Service } from '../<%= name %>.service';
 +
 +jest.mock('../<%= name %>.service');
- 
- describe('<%= classify(name) %>Controller', () => {
-   let controller: <%= classify(name) %>Controller;
++
++describe('<%= classify(name) %>Controller', () => {
++	let controller: <%= classify(name) %>Controller;
++
++	beforeEach(async () => {
++		const module: TestingModule = await Test.createTestingModule({
++			controllers: [<%= classify(name) %>Controller],
++			providers: [
++				{
++					provide: I<%= classify(name) %>Service,
++					useClass: <%= classify(name) %>Service
++				}
++			]
++		}).compile();
++
++		controller = module.get<<%= classify(name) %>Controller>(<%= classify(name) %>Controller);
++	});
++
++	it('should be defined', () => {
++		expect(controller).toBeDefined();
++	});
++});
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.gateway.__specFileSuffix__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.gateway.__specFileSuffix__.ts
 similarity index 78%
 rename from node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.gateway.__specFileSuffix__.ts
@@ -222,27 +349,37 @@ index 2ef2c6f..38800fb 100644
  
  describe('<%= classify(name) %>Resolver', () => {
    let resolver: <%= classify(name) %>Resolver;
-diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.service.__specFileSuffix__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.service.__specFileSuffix__.ts
-similarity index 69%
-rename from node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.service.__specFileSuffix__.ts
-rename to node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.service.__specFileSuffix__.ts
-index 2b3f38b..6c80b46 100644
---- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.service.__specFileSuffix__.ts
+diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.service.__specFileSuffix__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.service.__specFileSuffix__.ts
+new file mode 100644
+index 0000000..372e805
+--- /dev/null
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.service.__specFileSuffix__.ts
-@@ -1,12 +1,14 @@
- import { Test, TestingModule } from '@nestjs/testing';
--import { <%= classify(name) %>Service } from './<%= name %>.service';
+@@ -0,0 +1,28 @@
++import { Test, TestingModule } from '@nestjs/testing';
++import { I<%= classify(name) %>Service } from '../<%= name %>.interface';
++import { <%= classify(name) %>Repository } from '../<%= name %>.repository';
 +import { <%= classify(name) %>Service } from '../<%= name %>.service';
 +
 +jest.mock('../<%= name %>.repository');
- 
- describe('<%= classify(name) %>Service', () => {
-   let service: <%= classify(name) %>Service;
- 
-   beforeEach(async () => {
-     const module: TestingModule = await Test.createTestingModule({
--      providers: [<%= classify(name) %>Service],
-+      providers: [<%= classify(name) %>Service, <%= classify(name) %>Repository],
-     }).compile();
- 
-     service = module.get<<%= classify(name) %>Service>(<%= classify(name) %>Service);
++
++describe('<%= classify(name) %>Service', () => {
++	let service: I<%= classify(name) %>Service;
++
++	beforeEach(async () => {
++		const module: TestingModule = await Test.createTestingModule({
++			providers: [
++				{
++					provide: I<%= classify(name) %>Service,
++					useClass: <%= classify(name) %>Service
++				},
++				<%= classify(name) %>Repository
++			]
++		}).compile();
++
++		service = module.get<I<%= classify(name) %>Service>(I<%= classify(name) %>Service);
++	});
++
++	it('should be defined', () => {
++		expect(service).toBeDefined();
++	});
++});

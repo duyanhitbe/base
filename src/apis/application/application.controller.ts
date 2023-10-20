@@ -24,21 +24,21 @@ export class ApplicationController {
 
 	@Post()
 	@UseAdminGuard()
-	@ApiCreate(ApplicationEntity, 'application')
+	@ApiCreate(ApplicationEntity, 'Application')
 	create(@Body() createApplicationDto: CreateApplicationDto) {
 		return this.applicationService.create(createApplicationDto);
 	}
 
 	@Get()
 	@UseAdminGuard()
-	@ApiGetAll(ApplicationEntity, 'application')
+	@ApiGetAll(ApplicationEntity, 'Application')
 	getAll(@Query() query: PaginationDto) {
 		return this.applicationService.getAllWithPagination(query);
 	}
 
 	@Get(':id')
 	@UseAdminGuard()
-	@ApiGetOne(ApplicationEntity, 'application')
+	@ApiGetOne(ApplicationEntity, 'Application')
 	@ApiParam({ name: 'id', description: 'Truyền all nếu muốn lấy tất cả' })
 	getOne(@Param('id') id: string, @Query() query: GetAllQueryDto) {
 		if (id === 'all') {
@@ -52,21 +52,21 @@ export class ApplicationController {
 
 	@Patch(':id')
 	@UseAdminGuard()
-	@ApiUpdate(ApplicationEntity, 'application')
+	@ApiUpdate(ApplicationEntity, 'Application')
 	update(@Param('id') id: string, @Body() updateApplicationDto: UpdateApplicationDto) {
 		return this.applicationService.updateById(id, updateApplicationDto);
 	}
 
 	@Delete(':id')
 	@UseAdminGuard()
-	@ApiDelete(ApplicationEntity, 'application')
+	@ApiDelete(ApplicationEntity, 'Application')
 	remove(@Param('id') id: string) {
 		return this.applicationService.softRemoveById(id);
 	}
 
 	@Get('/info/me')
 	@UseApplicationGuard()
-	@ApiGetOne(ApplicationEntity, 'application')
+	@ApiGetOne(ApplicationEntity, 'Application')
 	getMe(@User('application') user: Application) {
 		return this.applicationService.getOneByIdOrFail(user.applicationId);
 	}
