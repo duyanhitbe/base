@@ -1,15 +1,16 @@
 import { AdminEntity } from '@apis/admin/entities/admin.entity';
 import { ApplicationEntity } from '@apis/application/entities/application.entity';
 import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
-import { ReqUser, UseAdminGuard, UseApplicationGuard, UseMerchantGuard, User } from '@common';
+import { UseAdminGuard, UseApplicationGuard, UseMerchantGuard, User } from '@common';
 import { Body, Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { GenerateTokenAdminDto } from './dto/generate-token-admin.dto';
 import { GenerateTokenApplicationDto } from './dto/generate-token-application.dto';
 import { GenerateTokenMerchantDto } from './dto/generate-token-merchant.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('auth')
 @ApiTags('Auth API')
@@ -107,5 +108,31 @@ export class AuthController {
 	})
 	logoutMerchant(@User() user: ReqUser) {
 		return this.authService.logout(user);
+	}
+
+	@Post('change-password/admin')
+	@ApiOperation({ summary: 'Đổi mật khẩu admin' })
+	@UseAdminGuard()
+	@HttpCode(200)
+	@ApiOkResponse({
+		schema: {
+			$ref: getSchemaPath(AdminEntity)
+		}
+	})
+	changePasswordAdmin(@User() user: ReqUser, @Body() changePasswordDto: ChangePasswordDto) {
+		return this.authService.changePassword(user, changePasswordDto);
+	}
+
+	@Post('change-password/merchant')
+	@ApiOperation({ summary: 'Đổi mật khẩu user' })
+	@UseMerchantGuard()
+	@HttpCode(200)
+	@ApiOkResponse({
+		schema: {
+			$ref: getSchemaPath(MerchantEntity)
+		}
+	})
+	changePasswordUser(@User() user: ReqUser, @Body() changePasswordDto: ChangePasswordDto) {
+		return this.authService.changePassword(user, changePasswordDto);
 	}
 }

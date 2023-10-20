@@ -19,7 +19,7 @@ export class MerchantJwtStrategy extends PassportStrategy(Strategy, 'merchant-jw
 		});
 	}
 
-	async validate(req: Request, payload: any) {
+	async validate(req: Request, payload: MerchantPayload) {
 		const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
 		if (!token) throw new UnauthorizedException('Missing token');
 		await this.authService.validateToken(token, payload.id);

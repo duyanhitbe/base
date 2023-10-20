@@ -2,27 +2,18 @@ import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@
 import { Request } from 'express';
 import { ExtractJwt } from 'passport-jwt';
 
-export interface ReqUser {
-	adminId: string;
-	applicationId: string;
-	merchantId: string;
-	type: 'admin' | 'application' | 'merchant';
-	token: string;
-}
-
-export const User = createParamDecorator((data: unknown, ctx: ExecutionContext) => {
+export const User = createParamDecorator((data: UserType, ctx: ExecutionContext) => {
 	const request = ctx.switchToHttp().getRequest<Request>();
 	const token = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
 	if (!token) throw new UnauthorizedException('Missing token');
-	const { type, adminId, applicationId, merchantId } = (request.user || {}) as ReqUser;
 
-	if (type === 'admin') {
-		return { adminId, type, token };
+	if (data === 'admin') {
+		return request.user as Admin;
 	}
-	if (type === 'application') {
-		return { applicationId, type, token };
+	if (data === 'application') {
+		return request.user as Application;
 	}
-	if (type === 'merchant') {
-		return { applicationId, merchantId, type, token };
+	if (data === 'merchant') {
+		return request.user as Merchant;
 	}
 });

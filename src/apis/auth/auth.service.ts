@@ -4,13 +4,13 @@ import { ApplicationService } from '@apis/application/application.service';
 import { ApplicationEntity } from '@apis/application/entities/application.entity';
 import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
 import { MerchantService } from '@apis/merchant/merchant.service';
-import { RedisPrefix, ReqUser } from '@common';
+import { RedisPrefix } from '@common';
 import { RedisService } from '@modules';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { AuthHelper } from './auth.helper';
-import { UserType } from './auth.interface';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -138,5 +138,28 @@ export class AuthService {
 		this.redisService.setNx(redisKey, JSON.stringify(updatedListToken));
 
 		return { success: true };
+	}
+
+	/** Đổi mật khẩu */
+	async changePassword(userReq: ReqUser, dto: ChangePasswordDto) {
+		let user: AdminEntity | MerchantEntity | null = null;
+		switch (userReq.type) {
+			case 'admin':
+				user = await this.adminService.getOneByIdOrFail(userReq.adminId);
+				break;
+			case 'merchant':
+				user = await this.merchantService.getOneByIdOrFail(userReq.merchantId);
+				break;
+		}
+		if (!user) {
+			throw new UnauthorizedException('invalid user');
+		}
+		const comparePassword = await argon2.verify(user.password, dto.oldPassword);
+		if (!comparePassword) {
+			throw new UnauthorizedException('Mật khẩu cũ không đúng');
+		}
+		const newHashedPassword = await argon2.hash(dto.newPassword);
+		user.password = newHashedPassword;
+		return user.save();
 	}
 }

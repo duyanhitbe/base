@@ -1,14 +1,15 @@
 import { AdminEntity } from '@apis/admin/entities/admin.entity';
 import { ApplicationEntity } from '@apis/application/entities/application.entity';
 import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
-import { ReqUser } from '@common';
-import { Injectable } from '@nestjs/common';
-import { UserType } from './auth.interface';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class AuthHelper {
-	getJwtPayload(user: AdminEntity | ApplicationEntity | MerchantEntity, type: UserType) {
-		let payload: any = {};
+	getJwtPayload(
+		user: AdminEntity | ApplicationEntity | MerchantEntity,
+		type: UserType
+	): JWTPayload {
+		let payload: JWTPayload | null = null;
 		switch (type) {
 			case 'admin':
 				user = user as AdminEntity;
@@ -23,10 +24,11 @@ export class AuthHelper {
 				payload = { id: user.id, applicationId: user.applicationId, type };
 				break;
 		}
+		if (!payload) throw new UnauthorizedException('invalid user');
 		return payload;
 	}
 
-	getUserId(user: ReqUser) {
+	getUserId(user: ReqUser): string {
 		let id: string;
 		switch (user.type) {
 			case 'admin':

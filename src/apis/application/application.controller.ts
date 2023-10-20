@@ -6,7 +6,6 @@ import {
 	ApiUpdate,
 	GetAllQueryDto,
 	PaginationDto,
-	ReqUser,
 	UseAdminGuard,
 	UseApplicationGuard,
 	User
@@ -68,7 +67,7 @@ export class ApplicationController {
 	@Get('/info/me')
 	@UseApplicationGuard()
 	@ApiGetOne(ApplicationEntity, 'application')
-	getMe(@User() user: ReqUser) {
+	getMe(@User('application') user: Application) {
 		return this.applicationService.getOneByIdOrFail(user.applicationId);
 	}
 }

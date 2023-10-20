@@ -6,7 +6,6 @@ import {
 	ApiUpdate,
 	GetAllQueryDto,
 	PaginationDto,
-	ReqUser,
 	UseApplicationGuard,
 	UseMerchantGuard,
 	User
@@ -73,7 +72,7 @@ export class MerchantController {
 	@UseMerchantGuard()
 	@ApiOperation({ summary: 'Lấy thông tin merchant đang đăng nhập' })
 	@ApiOkResponse({ schema: { $ref: getSchemaPath(MerchantEntity) } })
-	getMe(@User() user: ReqUser) {
+	getMe(@User('merchant') user: Merchant) {
 		return this.merchantService.getOneByIdOrFail(user.merchantId);
 	}
 }

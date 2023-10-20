@@ -6,7 +6,6 @@ import {
 	ApiUpdate,
 	GetAllQueryDto,
 	PaginationDto,
-	ReqUser,
 	UseAdminGuard,
 	User
 } from '@common';
@@ -67,7 +66,7 @@ export class AdminController {
 	@Get('/info/me')
 	@ApiOperation({ summary: 'Lấy thông tin admin đang đăng nhập' })
 	@ApiOkResponse({ schema: { $ref: getSchemaPath(AdminEntity) } })
-	getMe(@User() user: ReqUser) {
+	getMe(@User('admin') user: Admin) {
 		return this.adminService.getOneByIdOrFail(user.adminId);
 	}
 }
