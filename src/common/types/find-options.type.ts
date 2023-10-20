@@ -6,4 +6,5 @@ export type FindOptions<T extends BaseEntity> = {
 	order?: FindOptionsOrder<T>;
 	relations?: string[];
 	filter?: string;
+	loadEagerRelations?: boolean;
 };

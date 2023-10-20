@@ -15,7 +15,8 @@ export abstract class AbstractBaseService
 		IGetAllService,
 		IUpdateService,
 		IRemoveService,
-		ISoftRemoveService
+		ISoftRemoveService,
+		ICountService
 {
 	abstract create(data: DeepPartial<BaseEntity>): Promise<BaseEntity>;
 	abstract createMany(data: DeepPartial<BaseEntity>[]): Promise<BaseEntity[]>;
@@ -36,6 +37,14 @@ export abstract class AbstractBaseService
 	abstract getAllWithPagination(
 		options?: FindWithPaginationOptions<BaseEntity>
 	): Promise<IPaginationResponse<BaseEntity>>;
+	abstract countInNumberOfDay(
+		numberOfDays: number,
+		options: Partial<FindOptions<BaseEntity>>
+	): Promise<{
+		labels: string[];
+		values: number[];
+	}>;
+	abstract count(options: Partial<FindOptions<BaseEntity>>): Promise<number>;
 
 	abstract update(
 		options: FindOrFailOptions<BaseEntity>,
@@ -48,10 +57,16 @@ export abstract class AbstractBaseService
 	): Promise<BaseEntity>;
 
 	abstract remove(options: FindOrFailOptions<BaseEntity>): Promise<BaseEntity>;
-	abstract removeById(id: string, errorMessage?: string): Promise<BaseEntity>;
+	abstract removeById(
+		id: string,
+		options?: Partial<FindOrFailOptions<BaseEntity>>
+	): Promise<BaseEntity>;
 
 	abstract softRemove(options: FindOrFailOptions<BaseEntity>): Promise<BaseEntity>;
-	abstract softRemoveById(id: string, errorMessage?: string): Promise<BaseEntity>;
+	abstract softRemoveById(
+		id: string,
+		options?: Partial<FindOrFailOptions<BaseEntity>>
+	): Promise<BaseEntity>;
 }
 
 export interface ICreateService {
@@ -102,12 +117,28 @@ export interface IRemoveService {
 	/** Xoá một record, nếu không tìm thấy, trả về lỗi NotFound */
 	remove(options: FindOrFailOptions<BaseEntity>): Promise<BaseEntity>;
 	/** Xoá một record theo id, nếu không tìm thấy, trả về lỗi NotFound */
-	removeById(id: string, errorMessage?: string): Promise<BaseEntity>;
+	removeById(id: string, options?: Partial<FindOrFailOptions<BaseEntity>>): Promise<BaseEntity>;
 }
 
 export interface ISoftRemoveService {
 	/** Xoá mềm một record, nếu không tìm thấy, trả về lỗi NotFound */
 	softRemove(options: FindOrFailOptions<BaseEntity>): Promise<BaseEntity>;
 	/** Xoá mềm một record theo id */
-	softRemoveById(id: string, errorMessage?: string): Promise<BaseEntity>;
+	softRemoveById(
+		id: string,
+		options?: Partial<FindOrFailOptions<BaseEntity>>
+	): Promise<BaseEntity>;
+}
+
+export interface ICountService {
+	/** Đếm record */
+	count(options: Partial<FindOptions<BaseEntity>>): Promise<number>;
+	/** Đếm record trong vòng numberOfDays ngày */
+	countInNumberOfDay(
+		numberOfDays: number,
+		options: Partial<FindOptions<BaseEntity>>
+	): Promise<{
+		labels: string[];
+		values: number[];
+	}>;
 }

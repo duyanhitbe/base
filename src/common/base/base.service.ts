@@ -8,7 +8,17 @@ import {
 } from '@common';
 import { NotFoundException } from '@nestjs/common';
 import { extend, omit } from 'lodash';
-import { DeepPartial, FindOptionsWhere, ILike, Like, Repository } from 'typeorm';
+import {
+	And,
+	DeepPartial,
+	FindOptionsWhere,
+	ILike,
+	LessThan,
+	LessThanOrEqual,
+	Like,
+	MoreThanOrEqual,
+	Repository
+} from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { AbstractBaseService } from '../interfaces/base-service.interface';
 
@@ -31,23 +41,23 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 	}
 
 	getOne(options: FindOptions<T>): Promise<T | null> {
-		const { relations } = options;
+		const { relations, loadEagerRelations } = options;
 		const where = options.where || {};
 		const filter = JSON.parse(options.filter || '{}');
 		for (const field in filter) {
 			where[field] = Like(`%${filter[field]}%`);
 		}
-		return this.repository.findOne({ where, relations });
+		return this.repository.findOne({ where, relations, loadEagerRelations });
 	}
 
 	async getOneOrFail(options: FindOrFailOptions<T>): Promise<T> {
-		const { relations, errorMessage } = options;
+		const { relations, errorMessage, loadEagerRelations } = options;
 		const where = options.where || {};
 		const filter = JSON.parse(options.filter || '{}');
 		for (const field in filter) {
 			where[field] = Like(`%${filter[field]}%`);
 		}
-		const entity = await this.repository.findOne({ where, relations });
+		const entity = await this.repository.findOne({ where, relations, loadEagerRelations });
 		if (!entity) {
 			throw new NotFoundException(errorMessage || 'Entity not found');
 		}
@@ -71,7 +81,7 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 	}
 
 	getAll(options: Partial<FindOptions<T>>): Promise<T[]> {
-		const { relations, order } = options;
+		const { relations, order, loadEagerRelations } = options;
 		const where = options.where || {};
 		const filter = JSON.parse(options.filter || '{}');
 		for (const field in filter) {
@@ -80,14 +90,16 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 		return this.repository.find({
 			where,
 			relations,
-			order
+			order,
+			loadEagerRelations
 		});
 	}
 
 	async getAllWithPagination(
 		options: FindWithPaginationOptions<T>
 	): Promise<IPaginationResponse<T>> {
-		const where = options.where || {};
+		const loadEagerRelations = options.loadEagerRelations;
+		const where = options.where || [];
 		const filter = JSON.parse(options.filter || '{}');
 		const order = JSON.parse(options.sort || '{}');
 		const relations = options.relations;
@@ -95,16 +107,12 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 		const page = +(options.page || 1);
 		const take = limit;
 		const skip = limit * (+page - 1);
-		for (const field in filter) {
-			where[field] = ILike(`%${filter[field]}%`);
-		}
-		const [data, total] = await this.repository.findAndCount({
-			where,
-			order,
-			relations,
-			take,
-			skip
-		});
+
+		this.setWhereGetAllWithPagination(where, filter);
+
+		const findAndCountOptions = { where, order, relations, take, skip, loadEagerRelations };
+		const [data, total] = await this.repository.findAndCount(findAndCountOptions);
+
 		return {
 			data,
 			pagination: {
@@ -113,6 +121,37 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 				total
 			}
 		};
+	}
+
+	private setWhereGetAllWithPagination(
+		where: FindOptionsWhere<T> | FindOptionsWhere<T>[],
+		filter: any
+	) {
+		let from, to;
+
+		for (const field in filter) {
+			if (field === 'from') {
+				from = MoreThanOrEqual(filter[field]);
+			} else if (field === 'to') {
+				to = LessThanOrEqual(filter[field]);
+			} else if (typeof filter[field] === 'boolean') {
+				where[field] = filter[field];
+			} else {
+				where[field] = ILike(`%${filter[field]}%`);
+			}
+		}
+
+		if (from && !to) {
+			where['createdAt'] = from;
+		}
+
+		if (!from && to) {
+			where['createdAt'] = to;
+		}
+
+		if (from && to) {
+			where['createdAt'] = And(from, to);
+		}
 	}
 
 	async update(options: FindOrFailOptions<T>, data: QueryDeepPartialEntity<T>): Promise<T> {
@@ -128,6 +167,10 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 	): Promise<T[]> {
 		const where = options.where;
 		const result: T[] = [];
+		if (data.length === 0) {
+			await this.softRemove({ where });
+			return [];
+		}
 		/** Danh sách cần cập nhật */
 		const listEntityShouldUpdate: any[] = [];
 		/** Danh sách cần xóa */
@@ -187,8 +230,8 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 		return this.repository.remove(entity);
 	}
 
-	async removeById(id: string, errorMessage?: string): Promise<T> {
-		const entity = await this.getOneByIdOrFail(id, { errorMessage });
+	async removeById(id: string, options?: Partial<FindOrFailOptions<T>>): Promise<T> {
+		const entity = await this.getOneByIdOrFail(id, options);
 		return this.repository.remove(entity);
 	}
 
@@ -197,13 +240,44 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 		return this.repository.softRemove(entity);
 	}
 
-	async softRemoveById(id: string, errorMessage?: string): Promise<T> {
-		const entity = await this.getOneByIdOrFail(id, { errorMessage });
+	async softRemoveById(id: string, options?: Partial<FindOrFailOptions<T>>): Promise<T> {
+		const entity = await this.getOneByIdOrFail(id, options);
 		return this.repository.softRemove(entity);
 	}
 
 	async count(options: Partial<FindOptions<T>>) {
 		return this.repository.count(options);
+	}
+
+	async countInNumberOfDay(numberOfDays: number, options: Partial<FindOptions<T>>) {
+		const today = new Date();
+		const startDate = new Date(today);
+		startDate.setDate(startDate.getDate() - numberOfDays);
+
+		const labels: string[] = [];
+		const values: number[] = [];
+
+		for (let date = new Date(startDate); date <= today; date.setDate(date.getDate() + 1)) {
+			const nextDate = new Date(date);
+			nextDate.setDate(nextDate.getDate() + 1);
+
+			//@ts-ignore
+			const where: FindOptionsWhere<T> = {
+				...options.where,
+				createdAt: And(MoreThanOrEqual(date), LessThan(nextDate))
+			};
+			const count = await this.count({
+				...options,
+				where
+			});
+
+			labels.push(date.toLocaleDateString('vi-VN', { month: '2-digit', day: '2-digit' }));
+			values.push(count);
+		}
+		return {
+			labels,
+			values
+		};
 	}
 
 	getQueryBuilder(alias?: string) {
