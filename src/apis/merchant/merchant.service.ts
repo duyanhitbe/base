@@ -1,10 +1,9 @@
-import { BaseService } from '@common';
 import { Injectable } from '@nestjs/common';
-import { MerchantEntity } from './entities/merchant.entity';
+import { IMerchantService } from './merchant.interface';
 import { MerchantRepository } from './merchant.repository';
 
 @Injectable()
-export class MerchantService extends BaseService<MerchantEntity> {
+export class MerchantService extends IMerchantService {
 	constructor(private readonly merchantRepo: MerchantRepository) {
 		super(merchantRepo);
 	}

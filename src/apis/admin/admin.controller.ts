@@ -11,7 +11,7 @@ import {
 } from '@common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiParam, ApiTags, getSchemaPath } from '@nestjs/swagger';
-import { AdminService } from './admin.service';
+import { IAdminService } from './admin.interface';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { AdminEntity } from './entities/admin.entity';
@@ -20,7 +20,7 @@ import { AdminEntity } from './entities/admin.entity';
 @ApiTags('Admin API')
 @UseAdminGuard()
 export class AdminController {
-	constructor(private readonly adminService: AdminService) {}
+	constructor(private readonly adminService: IAdminService) {}
 
 	@Post()
 	@ApiCreate(AdminEntity, 'admin')

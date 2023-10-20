@@ -1,10 +1,9 @@
-import { BaseService } from '@common';
 import { Injectable } from '@nestjs/common';
+import { IApplicationService } from './application.interface';
 import { ApplicationRepository } from './application.repository';
-import { ApplicationEntity } from './entities/application.entity';
 
 @Injectable()
-export class ApplicationService extends BaseService<ApplicationEntity> {
+export class ApplicationService extends IApplicationService {
 	constructor(private readonly applicationRepo: ApplicationRepository) {
 		super(applicationRepo);
 	}

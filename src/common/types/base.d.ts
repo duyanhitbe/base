@@ -80,6 +80,14 @@ declare global {
 		 */
 		values: number[];
 	};
+
+	type GenerateTokenData = {
+		accessToken: string;
+	};
+
+	type LogoutData = {
+		success: boolean;
+	};
 }
 
 export {};

@@ -16,12 +16,12 @@ import { Request } from 'express';
 import { CreateMerchantDto } from './dto/create-merchant.dto';
 import { UpdateMerchantDto } from './dto/update-merchant.dto';
 import { MerchantEntity } from './entities/merchant.entity';
-import { MerchantService } from './merchant.service';
+import { IMerchantService } from './merchant.interface';
 
 @Controller('merchant')
 @ApiTags('Merchant API')
 export class MerchantController {
-	constructor(private readonly merchantService: MerchantService) {}
+	constructor(private readonly merchantService: IMerchantService) {}
 
 	@Post()
 	@UseApplicationGuard()

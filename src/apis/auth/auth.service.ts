@@ -1,27 +1,30 @@
-import { AdminService } from '@apis/admin/admin.service';
+import { IAdminService } from '@apis/admin/admin.interface';
 import { AdminEntity } from '@apis/admin/entities/admin.entity';
-import { ApplicationService } from '@apis/application/application.service';
+import { IApplicationService } from '@apis/application/application.interface';
 import { ApplicationEntity } from '@apis/application/entities/application.entity';
 import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
-import { MerchantService } from '@apis/merchant/merchant.service';
+import { IMerchantService } from '@apis/merchant/merchant.interface';
 import { RedisPrefix } from '@common';
 import { RedisService } from '@modules';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { AuthHelper } from './auth.helper';
+import { IAuthService } from './auth.interface';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
-export class AuthService {
+export class AuthService extends IAuthService {
 	constructor(
 		private readonly authHelper: AuthHelper,
-		private readonly adminService: AdminService,
-		private readonly applicationService: ApplicationService,
-		private readonly merchantService: MerchantService,
+		private readonly adminService: IAdminService,
+		private readonly applicationService: IApplicationService,
+		private readonly merchantService: IMerchantService,
 		private readonly jwtService: JwtService,
 		private readonly redisService: RedisService
-	) {}
+	) {
+		super();
+	}
 
 	/** Xác thực tài khoản admin */
 	async validateAdmin(username: string, password: string) {
