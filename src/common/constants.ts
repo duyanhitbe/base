@@ -8,4 +8,4 @@ export const RedisPrefix = {
 	ACCESS_TOKEN: 'ACCESS_TOKEN'
 };
 
-export const SCHEMA = process.env.SCHEMA || 'postgres';
+export const SCHEMA = process.env.SCHEMA || 'base';
