@@ -94,6 +94,7 @@
     "moduleNameMapper": {
       "src/(.*)": "<rootDir>/$1",
       "@common": "<rootDir>/common",
+      "@modules": "<rootDir>/modules",
       "@apis/(.*)": "<rootDir>/apis/$1"
     }
   }

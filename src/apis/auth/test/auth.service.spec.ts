@@ -4,10 +4,13 @@ import { MerchantService } from '@apis/merchant/merchant.service';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../auth.service';
+import { AuthHelper } from '../auth.helper';
+import { RedisService } from '@modules';
 
 jest.mock('../../admin/admin.service');
 jest.mock('../../application/application.service');
 jest.mock('../../merchant/merchant.service');
+jest.mock('../../../modules/redis/redis.service');
 
 describe('AuthService', () => {
 	let service: AuthService;
@@ -25,7 +28,9 @@ describe('AuthService', () => {
 				},
 				AdminService,
 				ApplicationService,
-				MerchantService
+				MerchantService,
+				AuthHelper,
+				RedisService
 			]
 		}).compile();
 
