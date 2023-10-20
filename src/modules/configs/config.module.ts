@@ -10,6 +10,7 @@ import * as Joi from 'joi';
 			validationSchema: Joi.object({
 				NODE_ENV: Joi.string().default('development'),
 				PORT: Joi.number().default(3000),
+				SCHEMA: Joi.string().default('postgres'),
 
 				DB_HOST: Joi.string().default('localhost'),
 				DB_PORT: Joi.number().default(5432),

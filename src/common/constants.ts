@@ -7,3 +7,5 @@ export const MetadataKey = {
 export const RedisPrefix = {
 	ACCESS_TOKEN: 'ACCESS_TOKEN'
 };
+
+export const SCHEMA = process.env.SCHEMA || 'postgres';

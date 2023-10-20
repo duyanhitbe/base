@@ -1,10 +1,10 @@
+import { BaseEntityWithApplication, SCHEMA } from '@common';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import * as argon2 from 'argon2';
 import { Exclude } from 'class-transformer';
-import { BaseEntityWithApplication } from 'src/common/base/base-with-application.entity';
 import { BeforeInsert, Column, Entity } from 'typeorm';
 
-@Entity({ name: 'merchant', schema: 'base' })
+@Entity({ name: 'merchant', schema: SCHEMA })
 export class MerchantEntity extends BaseEntityWithApplication {
 	/** Email của đối tác */
 	@ApiProperty({ description: 'Email của đối tác' })

@@ -1,8 +1,8 @@
+import { BaseEntity, SCHEMA } from '@common';
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseEntity } from 'src/common/base/base.entity';
 import { Column, Entity } from 'typeorm';
 
-@Entity({ name: 'application', schema: 'base' })
+@Entity({ name: 'application', schema: SCHEMA })
 export class ApplicationEntity extends BaseEntity {
 	/** Tên app */
 	@ApiProperty({ description: 'Tên app' })
