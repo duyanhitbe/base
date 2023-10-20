@@ -1,11 +1,10 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Response } from 'express';
 import { Observable, map } from 'rxjs';
-import { IResponse } from '../interfaces/response.interface';
 
 @Injectable()
 export class FormatResponseInterceptor implements NestInterceptor {
-	intercept(context: ExecutionContext, next: CallHandler<any>): Observable<IResponse> {
+	intercept(context: ExecutionContext, next: CallHandler<any>): Observable<IResponse<any>> {
 		const response = context.switchToHttp().getResponse<Response>();
 		const status = response.statusCode;
 

@@ -1,144 +1,49 @@
-import {
-	BaseEntity,
-	FindOptions,
-	FindOrFailOptions,
-	FindWithPaginationOptions,
-	IPaginationResponse
-} from '@common';
-import { DeepPartial } from 'typeorm';
+import { BaseEntity } from '@common';
+import { DeepPartial, SelectQueryBuilder } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-export abstract class AbstractBaseService
-	implements
-		ICreateService,
-		IGetOneService,
-		IGetAllService,
-		IUpdateService,
-		IRemoveService,
-		ISoftRemoveService,
-		ICountService
-{
-	abstract create(data: DeepPartial<BaseEntity>): Promise<BaseEntity>;
-	abstract createMany(data: DeepPartial<BaseEntity>[]): Promise<BaseEntity[]>;
-
-	abstract getOne(options: FindOptions<BaseEntity>): Promise<BaseEntity | null>;
-	abstract getOneOrFail(options: FindOrFailOptions<BaseEntity>): Promise<BaseEntity>;
-
-	abstract getOneById(
-		id: string,
-		options?: Partial<FindOptions<BaseEntity>>
-	): Promise<BaseEntity | null>;
-	abstract getOneByIdOrFail(
-		id: string,
-		options?: Partial<FindOrFailOptions<BaseEntity>>
-	): Promise<BaseEntity>;
-
-	abstract getAll(options?: Partial<FindOptions<BaseEntity>>): Promise<BaseEntity[]>;
-	abstract getAllWithPagination(
-		options?: FindWithPaginationOptions<BaseEntity>
-	): Promise<IPaginationResponse<BaseEntity>>;
-	abstract countInNumberOfDay(
-		numberOfDays: number,
-		options: Partial<FindOptions<BaseEntity>>
-	): Promise<{
-		labels: string[];
-		values: number[];
-	}>;
-	abstract count(options: Partial<FindOptions<BaseEntity>>): Promise<number>;
-
-	abstract update(
-		options: FindOrFailOptions<BaseEntity>,
-		data: QueryDeepPartialEntity<BaseEntity>
-	): Promise<BaseEntity>;
-	abstract updateById(
-		id: string,
-		data: QueryDeepPartialEntity<BaseEntity>,
-		options?: Partial<FindOrFailOptions<BaseEntity>>
-	): Promise<BaseEntity>;
-
-	abstract remove(options: FindOrFailOptions<BaseEntity>): Promise<BaseEntity>;
-	abstract removeById(
-		id: string,
-		options?: Partial<FindOrFailOptions<BaseEntity>>
-	): Promise<BaseEntity>;
-
-	abstract softRemove(options: FindOrFailOptions<BaseEntity>): Promise<BaseEntity>;
-	abstract softRemoveById(
-		id: string,
-		options?: Partial<FindOrFailOptions<BaseEntity>>
-	): Promise<BaseEntity>;
-}
-
-export interface ICreateService {
+export abstract class AbstractBaseService<T extends BaseEntity> {
 	/** Tạo một record */
-	create(data: DeepPartial<BaseEntity>): Promise<BaseEntity>;
+	abstract create(data: DeepPartial<T>): Promise<T>;
 	/** Tạo nhiều record */
-	createMany(data: DeepPartial<BaseEntity>[]): Promise<BaseEntity[]>;
-}
+	abstract createMany(data: DeepPartial<T>[]): Promise<T[]>;
 
-export interface IGetOneService {
 	/** Lấy một record */
-	getOne(options: FindOptions<BaseEntity>): Promise<BaseEntity | null>;
+	abstract getOne(options: FindOptions<T>): Promise<T | null>;
 	/** Lấy một record, nếu không tìm thấy, trả về lỗi NotFound */
-	getOneOrFail(options: FindOrFailOptions<BaseEntity>): Promise<BaseEntity>;
+	abstract getOneOrFail(options: FindOrFailOptions<T>): Promise<T>;
+
 	/** Lấy một record theo id */
-	getOneById(id: string, options?: Partial<FindOptions<BaseEntity>>): Promise<BaseEntity | null>;
+	abstract getOneById(id: string, options?: Partial<FindOptions<T>>): Promise<T | null>;
 	/** Lấy một record theo id, nếu không tìm thấy, trả về lỗi NotFound */
-	getOneByIdOrFail(
-		id: string,
-		options?: Partial<FindOrFailOptions<BaseEntity>>
-	): Promise<BaseEntity>;
-}
+	abstract getOneByIdOrFail(id: string, options?: Partial<FindOrFailOptions<T>>): Promise<T>;
 
-export interface IGetAllService {
 	/** Lấy tất cả record */
-	getAll(options: Partial<FindOptions<BaseEntity>>): Promise<BaseEntity[]>;
+	abstract getAll(options?: Partial<FindOptions<T>>): Promise<T[]>;
 	/** Lấy tất cả record và phân trang */
-	getAllWithPagination(
-		options: FindWithPaginationOptions<BaseEntity>
-	): Promise<IPaginationResponse<BaseEntity>>;
-}
-
-export interface IUpdateService {
+	abstract getAllWithPagination(options?: FindWithPaginationOptions<T>): Promise<IPaginationResponse<T>>;
+	
 	/** Cập nhật một record, nếu không tìm thấy, trả về lỗi NotFound */
-	update(
-		options: FindOrFailOptions<BaseEntity>,
-		data: QueryDeepPartialEntity<BaseEntity>
-	): Promise<BaseEntity>;
+	abstract update(options: FindOrFailOptions<T>, data: QueryDeepPartialEntity<T>): Promise<T>;
 	/** Cập nhật một record theo id, nếu không tìm thấy, trả về lỗi NotFound */
-	updateById(
-		id: string,
-		data: QueryDeepPartialEntity<BaseEntity>,
-		options?: Partial<FindOrFailOptions<BaseEntity>>
-	): Promise<BaseEntity>;
-}
-
-export interface IRemoveService {
+	abstract updateById(id: string, data: QueryDeepPartialEntity<T>, options?: Partial<FindOrFailOptions<T>>): Promise<T>;
+	/** Nếu data truyền id vào thì cập nhật, không truyền id thì tạo mới, nếu không truyền item cũ vào data thì sẽ xóa item đó */
+	abstract updateMany(options: FindOrFailOptions<T>, data: (QueryDeepPartialEntity<T> & { id?: string })[]): Promise<T[]>;
+	
 	/** Xoá một record, nếu không tìm thấy, trả về lỗi NotFound */
-	remove(options: FindOrFailOptions<BaseEntity>): Promise<BaseEntity>;
+	abstract remove(options: FindOrFailOptions<T>): Promise<T>;
 	/** Xoá một record theo id, nếu không tìm thấy, trả về lỗi NotFound */
-	removeById(id: string, options?: Partial<FindOrFailOptions<BaseEntity>>): Promise<BaseEntity>;
-}
-
-export interface ISoftRemoveService {
+	abstract removeById(id: string, options?: Partial<FindOrFailOptions<T>>): Promise<T>;
+	
 	/** Xoá mềm một record, nếu không tìm thấy, trả về lỗi NotFound */
-	softRemove(options: FindOrFailOptions<BaseEntity>): Promise<BaseEntity>;
+	abstract softRemove(options: FindOrFailOptions<T>): Promise<T>;
 	/** Xoá mềm một record theo id */
-	softRemoveById(
-		id: string,
-		options?: Partial<FindOrFailOptions<BaseEntity>>
-	): Promise<BaseEntity>;
-}
-
-export interface ICountService {
+	abstract softRemoveById(id: string, options?: Partial<FindOrFailOptions<T>>): Promise<T>;
+	
 	/** Đếm record */
-	count(options: Partial<FindOptions<BaseEntity>>): Promise<number>;
+	abstract count(options: Partial<FindOptions<T>>): Promise<number>;
 	/** Đếm record trong vòng numberOfDays ngày */
-	countInNumberOfDay(
-		numberOfDays: number,
-		options: Partial<FindOptions<BaseEntity>>
-	): Promise<{
-		labels: string[];
-		values: number[];
-	}>;
+	abstract countInNumberOfDay(numberOfDays: number, options: Partial<FindOptions<T>>): Promise<CountInNumberOfDayData>;
+
+	abstract getQueryBuilder(alias?: string): SelectQueryBuilder<T>;
 }

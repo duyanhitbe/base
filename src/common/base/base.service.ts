@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {
-	BaseEntity,
-	FindOptions,
-	FindOrFailOptions,
-	FindWithPaginationOptions,
-	IPaginationResponse
-} from '@common';
+import { BaseEntity } from '@common';
 import { NotFoundException } from '@nestjs/common';
-import { extend, omit } from 'lodash';
+import { extend } from 'lodash';
 import {
 	And,
 	DeepPartial,
@@ -22,111 +16,21 @@ import {
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { AbstractBaseService } from '../interfaces/base-service.interface';
 
-export class BaseService<T extends BaseEntity> extends AbstractBaseService {
+export class BaseService<T extends BaseEntity> extends AbstractBaseService<T> {
 	constructor(private readonly repository: Repository<T>) {
 		super();
 	}
 
-	create(data: DeepPartial<T>): Promise<T> {
-		return this.repository.create(data).save();
-	}
-
-	async createMany(data: DeepPartial<T>[]): Promise<T[]> {
-		const result: T[] = [];
-		for (let i = 0; i < data.length; i++) {
-			const newEntity = await this.create(data[i]);
-			result.push(newEntity);
-		}
-		return result;
-	}
-
-	getOne(options: FindOptions<T>): Promise<T | null> {
-		const { relations, loadEagerRelations } = options;
+	private getWhere(options: Partial<FindOptions<T>>){
 		const where = options.where || {};
 		const filter = JSON.parse(options.filter || '{}');
 		for (const field in filter) {
 			where[field] = Like(`%${filter[field]}%`);
 		}
-		return this.repository.findOne({ where, relations, loadEagerRelations });
+		return where;
 	}
 
-	async getOneOrFail(options: FindOrFailOptions<T>): Promise<T> {
-		const { relations, errorMessage, loadEagerRelations } = options;
-		const where = options.where || {};
-		const filter = JSON.parse(options.filter || '{}');
-		for (const field in filter) {
-			where[field] = Like(`%${filter[field]}%`);
-		}
-		const entity = await this.repository.findOne({ where, relations, loadEagerRelations });
-		if (!entity) {
-			throw new NotFoundException(errorMessage || 'Entity not found');
-		}
-		return entity;
-	}
-
-	getOneById(id: string, options?: Partial<FindOptions<T>>): Promise<T | null> {
-		const where = { id } as FindOptionsWhere<T>;
-		return this.repository.findOne({ ...options, where });
-	}
-
-	async getOneByIdOrFail(id: string, options?: Partial<FindOrFailOptions<T>>): Promise<T> {
-		const where = { id } as FindOptionsWhere<T>;
-		const errorMessage = options?.errorMessage || 'Entity not found';
-		omit(options, ['errorMessage']);
-		const entity = await this.repository.findOne({ ...options, where });
-		if (!entity) {
-			throw new NotFoundException(errorMessage);
-		}
-		return entity;
-	}
-
-	getAll(options: Partial<FindOptions<T>>): Promise<T[]> {
-		const { relations, order, loadEagerRelations } = options;
-		const where = options.where || {};
-		const filter = JSON.parse(options.filter || '{}');
-		for (const field in filter) {
-			where[field] = Like(`%${filter[field]}%`);
-		}
-		return this.repository.find({
-			where,
-			relations,
-			order,
-			loadEagerRelations
-		});
-	}
-
-	async getAllWithPagination(
-		options: FindWithPaginationOptions<T>
-	): Promise<IPaginationResponse<T>> {
-		const loadEagerRelations = options.loadEagerRelations;
-		const where = options.where || [];
-		const filter = JSON.parse(options.filter || '{}');
-		const order = JSON.parse(options.sort || '{}');
-		const relations = options.relations;
-		const limit = +(options.limit || 10);
-		const page = +(options.page || 1);
-		const take = limit;
-		const skip = limit * (+page - 1);
-
-		this.setWhereGetAllWithPagination(where, filter);
-
-		const findAndCountOptions = { where, order, relations, take, skip, loadEagerRelations };
-		const [data, total] = await this.repository.findAndCount(findAndCountOptions);
-
-		return {
-			data,
-			pagination: {
-				limit,
-				page,
-				total
-			}
-		};
-	}
-
-	private setWhereGetAllWithPagination(
-		where: FindOptionsWhere<T> | FindOptionsWhere<T>[],
-		filter: any
-	) {
+	private setWhereGetAllWithPagination(where: FindOptionsWhere<T> | FindOptionsWhere<T>[], filter: any) {
 		let from, to;
 
 		for (const field in filter) {
@@ -154,17 +58,84 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 		}
 	}
 
+	create(data: DeepPartial<T>): Promise<T> {
+		return this.repository.create(data).save();
+	}
+
+	createMany(data: DeepPartial<T>[]): Promise<T[]> {
+		return Promise.all(this.repository.create(data).map((newData) => newData.save()));
+	}
+
+	getOne(options: FindOptions<T>): Promise<T | null> {
+		const { relations, loadEagerRelations, order } = options;
+		const where = this.getWhere(options);
+		return this.repository.findOne({ where, relations, loadEagerRelations, order });
+	}
+
+	async getOneOrFail(options: FindOrFailOptions<T>): Promise<T> {
+		const errorMessage = options?.errorMessage || 'Entity not found';
+		const where = this.getWhere(options);
+		const entity = await this.getOne({ ...options, where });
+		if (!entity) throw new NotFoundException(errorMessage);
+		return entity;
+	}
+
+	getOneById(id: string, options?: Partial<FindOptions<T>>): Promise<T | null> {
+		const where = { id } as FindOptionsWhere<T>;
+		return this.getOne({ ...options, where });
+	}
+
+	async getOneByIdOrFail(id: string, options?: Partial<FindOrFailOptions<T>>): Promise<T> {
+		const errorMessage = options?.errorMessage || 'Entity not found';
+		const entity = await this.getOneById(id, options);
+		if (!entity) throw new NotFoundException(errorMessage);
+		return entity;
+	}
+
+	getAll(options: Partial<FindOptions<T>>): Promise<T[]> {
+		const { relations, order, loadEagerRelations } = options;
+		const where = this.getWhere(options);
+		return this.repository.find({
+			where,
+			relations,
+			order,
+			loadEagerRelations
+		});
+	}
+
+	async getAllWithPagination(options: FindWithPaginationOptions<T>): Promise<IPaginationResponse<T>> {
+		const loadEagerRelations = options.loadEagerRelations;
+		const where = options.where || [];
+		const filter = JSON.parse(options.filter || '{}');
+		const order = JSON.parse(options.sort || '{}');
+		const relations = options.relations;
+		const limit = +(options.limit || 10);
+		const page = +(options.page || 1);
+		const take = limit;
+		const skip = limit * (+page - 1);
+
+		this.setWhereGetAllWithPagination(where, filter);
+
+		const findAndCountOptions = { where, order, relations, take, skip, loadEagerRelations };
+		const [data, total] = await this.repository.findAndCount(findAndCountOptions);
+
+		return {
+			data,
+			pagination: {
+				limit,
+				page,
+				total
+			}
+		};
+	}
+
 	async update(options: FindOrFailOptions<T>, data: QueryDeepPartialEntity<T>): Promise<T> {
 		const entity = await this.getOneOrFail(options);
 		const newEntity = extend<T>(entity, data);
 		return newEntity.save();
 	}
 
-	/** Cập nhật hàng loạt */
-	async updateMany(
-		options: FindOrFailOptions<T>,
-		data: (QueryDeepPartialEntity<T> & { id?: string })[]
-	): Promise<T[]> {
+	async updateMany(options: FindOrFailOptions<T>, data: (QueryDeepPartialEntity<T> & { id?: string })[]): Promise<T[]> {
 		const where = options.where;
 		const result: T[] = [];
 		if (data.length === 0) {
@@ -215,11 +186,7 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService {
 		return result;
 	}
 
-	async updateById(
-		id: string,
-		data: QueryDeepPartialEntity<T>,
-		options?: Partial<FindOrFailOptions<T>>
-	): Promise<T> {
+	async updateById(id: string, data: QueryDeepPartialEntity<T>, options?: Partial<FindOrFailOptions<T>>): Promise<T> {
 		const entity = await this.getOneByIdOrFail(id, options);
 		const newEntity = extend<T>(entity, data);
 		return newEntity.save();
