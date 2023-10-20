@@ -1,6 +1,6 @@
-import { BaseEntity } from 'src/common/base/base.entity';
 import { SCHEMA } from '@common';
 import { ApiProperty } from '@nestjs/swagger';
+import { BaseEntity } from 'src/common/base/base.entity';
 import { Column, Entity } from 'typeorm';
 
 @Entity({ name: 'application', schema: SCHEMA })
