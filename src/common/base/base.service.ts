@@ -218,6 +218,7 @@ export class BaseService<T extends BaseEntity> extends AbstractBaseService<T> {
 
 	async countInNumberOfDay(numberOfDays: number, options: Partial<FindOptions<T>>) {
 		const today = new Date();
+		today.setHours(0, 0, 0, 0);
 		const startDate = new Date(today);
 		startDate.setDate(startDate.getDate() - numberOfDays);
 
