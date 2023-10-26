@@ -8,7 +8,7 @@ import * as Joi from 'joi';
 			isGlobal: true,
 			envFilePath: '.env',
 			validationSchema: Joi.object({
-				NODE_ENV: Joi.string().default('development'),
+				NODE_ENV: Joi.string().default('dev'),
 				PORT: Joi.number().default(3000),
 				SCHEMA: Joi.string().default('postgres'),
 
