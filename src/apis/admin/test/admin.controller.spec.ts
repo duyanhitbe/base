@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AdminController } from '../admin.controller';
-import { IAdminService } from '../admin.interface';
-import { AdminService } from '../admin.service';
+import { AdminHandler } from '../admin.handler';
+import { IAdminHandler } from '../admin.interface';
 
-jest.mock('../admin.service');
+jest.mock('../admin.handler');
 
 describe('AdminController', () => {
 	let controller: AdminController;
@@ -13,8 +13,8 @@ describe('AdminController', () => {
 			controllers: [AdminController],
 			providers: [
 				{
-					provide: IAdminService,
-					useClass: AdminService
+					provide: IAdminHandler,
+					useClass: AdminHandler
 				}
 			]
 		}).compile();

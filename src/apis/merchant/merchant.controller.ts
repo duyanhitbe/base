@@ -16,12 +16,12 @@ import { Request } from 'express';
 import { CreateMerchantDto } from './dto/create-merchant.dto';
 import { UpdateMerchantDto } from './dto/update-merchant.dto';
 import { MerchantEntity } from './entities/merchant.entity';
-import { IMerchantService } from './merchant.interface';
+import { IMerchantHandler } from './merchant.interface';
 
 @Controller('merchant')
 @ApiTags('Merchant API')
 export class MerchantController {
-	constructor(private readonly merchantService: IMerchantService) {}
+	constructor(private readonly merchantHandler: IMerchantHandler) {}
 
 	@Post()
 	@UseApplicationGuard()
@@ -30,14 +30,14 @@ export class MerchantController {
 		/** Bao gồm applicationId và type */
 		const jwtPayload = req.user || {};
 		createMerchantDto['applicationId'] = jwtPayload['applicationId'];
-		return this.merchantService.create(createMerchantDto);
+		return this.merchantHandler.create(createMerchantDto);
 	}
 
 	@Get()
 	@UseApplicationGuard()
 	@ApiGetAll(MerchantEntity, 'Merchant')
 	getAll(@Query() query: PaginationDto) {
-		return this.merchantService.getAllWithPagination(query);
+		return this.merchantHandler.getAllWithPagination(query);
 	}
 
 	@Get(':id')
@@ -46,26 +46,23 @@ export class MerchantController {
 	@ApiParam({ name: 'id', description: 'Truyền all nếu muốn lấy tất cả' })
 	getOne(@Param('id') id: string, @Query() query: GetAllQueryDto) {
 		if (id === 'all') {
-			return this.merchantService.getAll({
-				...query,
-				order: query.sort ? JSON.parse(query.sort) : {}
-			});
+			return this.merchantHandler.getAll(query);
 		}
-		return this.merchantService.getOneById(id);
+		return this.merchantHandler.getOneById(id);
 	}
 
 	@Patch(':id')
 	@UseApplicationGuard()
 	@ApiUpdate(MerchantEntity, 'Merchant')
 	update(@Param('id') id: string, @Body() updateMerchantDto: UpdateMerchantDto) {
-		return this.merchantService.updateById(id, updateMerchantDto);
+		return this.merchantHandler.updateById(id, updateMerchantDto);
 	}
 
 	@Delete(':id')
 	@UseApplicationGuard()
 	@ApiDelete(MerchantEntity, 'Merchant')
 	remove(@Param('id') id: string) {
-		return this.merchantService.softRemoveById(id);
+		return this.merchantHandler.removeById(id);
 	}
 
 	@Get('/info/me')
@@ -73,6 +70,6 @@ export class MerchantController {
 	@ApiOperation({ summary: 'Lấy thông tin merchant đang đăng nhập' })
 	@ApiOkResponse({ schema: { $ref: getSchemaPath(MerchantEntity) } })
 	getMe(@User('merchant') user: Merchant) {
-		return this.merchantService.getOneByIdOrFail(user.merchantId);
+		return this.merchantHandler.getOneById(user.merchantId);
 	}
 }

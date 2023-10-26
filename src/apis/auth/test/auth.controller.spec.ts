@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '../auth.controller';
-import { IAuthService } from '../auth.interface';
-import { AuthService } from '../auth.service';
+import { AuthHandler } from '../auth.handler';
+import { IAuthHandler } from '../auth.interface';
 
-jest.mock('../auth.service');
+jest.mock('../auth.handler');
 
 describe('AuthController', () => {
 	let controller: AuthController;
@@ -13,8 +13,8 @@ describe('AuthController', () => {
 			controllers: [AuthController],
 			providers: [
 				{
-					provide: IAuthService,
-					useClass: AuthService
+					provide: IAuthHandler,
+					useClass: AuthHandler
 				}
 			]
 		}).compile();

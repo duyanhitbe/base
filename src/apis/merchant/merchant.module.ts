@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MerchantEntity } from './entities/merchant.entity';
 import { MerchantController } from './merchant.controller';
-import { IMerchantService } from './merchant.interface';
+import { MerchantHandler } from './merchant.handler';
+import { IMerchantHandler, IMerchantService } from './merchant.interface';
 import { MerchantRepository } from './merchant.repository';
 import { MerchantService } from './merchant.service';
 
@@ -13,6 +14,10 @@ import { MerchantService } from './merchant.service';
 		{
 			provide: IMerchantService,
 			useClass: MerchantService
+		},
+		{
+			provide: IMerchantHandler,
+			useClass: MerchantHandler
 		},
 		MerchantRepository
 	],

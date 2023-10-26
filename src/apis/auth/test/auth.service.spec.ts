@@ -7,17 +7,17 @@ import { MerchantService } from '@apis/merchant/merchant.service';
 import { RedisService } from '@modules';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+import { AuthHandler } from '../auth.handler';
 import { AuthHelper } from '../auth.helper';
-import { IAuthService } from '../auth.interface';
-import { AuthService } from '../auth.service';
+import { IAuthHandler } from '../auth.interface';
 
 jest.mock('../../admin/admin.service');
 jest.mock('../../application/application.service');
 jest.mock('../../merchant/merchant.service');
 jest.mock('../../../modules/redis/redis.service');
 
-describe('AuthService', () => {
-	let service: IAuthService;
+describe('AuthHandler', () => {
+	let service: IAuthHandler;
 	let jwtService: JwtService;
 
 	beforeEach(async () => {
@@ -26,8 +26,8 @@ describe('AuthService', () => {
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
 				{
-					provide: IAuthService,
-					useClass: AuthService
+					provide: IAuthHandler,
+					useClass: AuthHandler
 				},
 				{
 					provide: JwtService,
@@ -50,7 +50,7 @@ describe('AuthService', () => {
 			]
 		}).compile();
 
-		service = module.get<IAuthService>(IAuthService);
+		service = module.get<IAuthHandler>(IAuthHandler);
 	});
 
 	it('should be defined', () => {

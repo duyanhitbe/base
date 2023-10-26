@@ -2,6 +2,7 @@ export * from './base/base-with-application.entity';
 export * from './base/base-with-merchant.entity';
 export * from './base/base.dto';
 export * from './base/base.entity';
+export * from './base/base.handler';
 export * from './base/base.service';
 export * from './base/base.swagger';
 

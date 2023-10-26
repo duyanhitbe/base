@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminController } from './admin.controller';
-import { IAdminService } from './admin.interface';
+import { AdminHandler } from './admin.handler';
+import { IAdminHandler, IAdminService } from './admin.interface';
 import { AdminRepository } from './admin.repository';
 import { AdminService } from './admin.service';
 import { AdminEntity } from './entities/admin.entity';
@@ -13,6 +14,10 @@ import { AdminEntity } from './entities/admin.entity';
 		{
 			provide: IAdminService,
 			useClass: AdminService
+		},
+		{
+			provide: IAdminHandler,
+			useClass: AdminHandler
 		},
 		AdminRepository
 	],

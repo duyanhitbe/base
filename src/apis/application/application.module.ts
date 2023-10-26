@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApplicationController } from './application.controller';
-import { IApplicationService } from './application.interface';
+import { ApplicationHandler } from './application.handler';
+import { IApplicationHandler, IApplicationService } from './application.interface';
 import { ApplicationRepository } from './application.repository';
 import { ApplicationService } from './application.service';
 import { ApplicationEntity } from './entities/application.entity';
@@ -13,6 +14,10 @@ import { ApplicationEntity } from './entities/application.entity';
 		{
 			provide: IApplicationService,
 			useClass: ApplicationService
+		},
+		{
+			provide: IApplicationHandler,
+			useClass: ApplicationHandler
 		},
 		ApplicationRepository
 	],

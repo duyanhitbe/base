@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ApplicationController } from '../application.controller';
-import { IApplicationService } from '../application.interface';
-import { ApplicationService } from '../application.service';
+import { ApplicationHandler } from '../application.handler';
+import { IApplicationHandler } from '../application.interface';
 
-jest.mock('../application.service');
+jest.mock('../application.handler');
 
 describe('ApplicationController', () => {
 	let controller: ApplicationController;
@@ -13,8 +13,8 @@ describe('ApplicationController', () => {
 			controllers: [ApplicationController],
 			providers: [
 				{
-					provide: IApplicationService,
-					useClass: ApplicationService
+					provide: IApplicationHandler,
+					useClass: ApplicationHandler
 				}
 			]
 		}).compile();

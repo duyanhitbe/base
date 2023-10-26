@@ -10,11 +10,11 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { AuthHelper } from './auth.helper';
-import { IAuthService } from './auth.interface';
+import { IAuthHandler } from './auth.interface';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
-export class AuthService extends IAuthService {
+export class AuthHandler extends IAuthHandler {
 	constructor(
 		private readonly authHelper: AuthHelper,
 		private readonly adminService: IAdminService,

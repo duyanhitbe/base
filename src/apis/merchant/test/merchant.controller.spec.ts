@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MerchantController } from '../merchant.controller';
-import { IMerchantService } from '../merchant.interface';
-import { MerchantService } from '../merchant.service';
+import { MerchantHandler } from '../merchant.handler';
+import { IMerchantHandler } from '../merchant.interface';
 
-jest.mock('../merchant.service');
+jest.mock('../merchant.handler');
 
 describe('MerchantController', () => {
 	let controller: MerchantController;
@@ -13,8 +13,8 @@ describe('MerchantController', () => {
 			controllers: [MerchantController],
 			providers: [
 				{
-					provide: IMerchantService,
-					useClass: MerchantService
+					provide: IMerchantHandler,
+					useClass: MerchantHandler
 				}
 			]
 		}).compile();

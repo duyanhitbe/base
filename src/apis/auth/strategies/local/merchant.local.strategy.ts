@@ -1,11 +1,11 @@
-import { IAuthService } from '@apis/auth/auth.interface';
+import { IAuthHandler } from '@apis/auth/auth.interface';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 
 @Injectable()
 export class MerchantLocalStrategy extends PassportStrategy(Strategy, 'merchant-local') {
-	constructor(private authService: IAuthService) {
+	constructor(private authService: IAuthHandler) {
 		super({
 			usernameField: 'email',
 			passwordField: 'password'
