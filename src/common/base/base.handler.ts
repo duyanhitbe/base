@@ -12,7 +12,7 @@ export class BaseHandler<T extends BaseEntity> {
 	}
 
 	getAllWithPagination(query: PaginationDto) {
-		this.service.getAllWithPagination(query);
+		return this.service.getAllWithPagination(query);
 	}
 
 	getAll(query: GetAllQueryDto) {

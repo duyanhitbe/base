@@ -21,3 +21,8 @@ export * from './pipes/hash-password.pipe';
 export * from './pipes/omit.pipe';
 
 export * from './interceptors/format-response.interceptor';
+
+export * from './middlewares/logger.middleware';
+
+export * from './filters/http.filter';
+export * from './filters/typeorm.filter';
