@@ -25,10 +25,10 @@ index 17e5843..0000000
 -  });
 -});
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts
-index 8d1b7b4..eacab6f 100644
+index 8d1b7b4..ea72ee0 100644
 --- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts
-@@ -1,63 +1,56 @@
+@@ -1,63 +1,55 @@
 -<% if (crud && type === 'rest') { %>import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';<%
 -} else if (crud && type === 'microservice') { %>import { Controller } from '@nestjs/common';
 -import { MessagePattern, Payload } from '@nestjs/microservices';<%
@@ -53,7 +53,7 @@ index 8d1b7b4..eacab6f 100644
 +import { Create<%= classify(name) %>Dto } from './dto/create-<%= name %>.dto';
 +import { Update<%= classify(name) %>Dto } from './dto/update-<%= name %>.dto';
 +import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';
-+import { I<%= classify(name) %>Service } from './<%= name %>.interface';
++import { I<%= classify(name) %>Handler } from './<%= name %>.interface';
 +
 +@Controller('<%= name %>')
 +@ApiTags('<%= classify(name) %> API')
@@ -109,18 +109,18 @@ index 8d1b7b4..eacab6f 100644
 -  remove(@Payload() id: number) {
 -    return this.<%= lowercased(name) %>Service.remove(id);
 -  }<% } %>
-+	constructor(private readonly <%= lowercased(name) %>Service: I<%= classify(name) %>Service) {}
++	constructor(private readonly <%= lowercased(name) %>Handler: I<%= classify(name) %>Handler) {}
 +
 +	@Post()
 +	@ApiCreate(<%= classify(name) %>Entity, '<%= classify(name) %>')
 +	create(@Body() create<%= classify(name) %>Dto: Create<%= classify(name) %>Dto) {
-+		return this.<%= lowercased(name) %>Service.create(create<%= classify(name) %>Dto);
++		return this.<%= lowercased(name) %>Handler.create(create<%= classify(name) %>Dto);
 +	}
 +
 +	@Get()
 +	@ApiGetAll(<%= classify(name) %>Entity, '<%= classify(name) %>')
 +	getAll(@Query() query: PaginationDto) {
-+		return this.<%= lowercased(name) %>Service.getAllWithPagination(query);
++		return this.<%= lowercased(name) %>Handler.getAllWithPagination(query);
 +	}
 +
 +	@Get(':id')
@@ -128,57 +128,78 @@ index 8d1b7b4..eacab6f 100644
 +	@ApiParam({ name: 'id', description: 'Truyền all nếu muốn lấy tất cả' })
 +	getOne(@Param('id') id: string, @Query() query: GetAllQueryDto) {
 +		if (id === 'all') {
-+			query['order'] = query.sort ? JSON.parse(query.sort) : {};
-+			return this.<%= lowercased(name) %>Service.getAll(query);
++			return this.<%= lowercased(name) %>Handler.getAll(query);
 +		}
-+		return this.<%= lowercased(name) %>Service.getOneById(id);
++		return this.<%= lowercased(name) %>Handler.getOneById(id);
 +	}
 +
 +	@Patch(':id')
 +	@ApiUpdate(<%= classify(name) %>Entity, '<%= classify(name) %>')
 +	update(@Param('id') id: string, @Body() update<%= classify(name) %>Dto: Update<%= classify(name) %>Dto) {
-+		return this.<%= lowercased(name) %>Service.updateById(id, update<%= classify(name) %>Dto);
++		return this.<%= lowercased(name) %>Handler.updateById(id, update<%= classify(name) %>Dto);
 +	}
 +
 +	@Delete(':id')
 +	@ApiDelete(<%= classify(name) %>Entity, '<%= classify(name) %>')
 +	remove(@Param('id') id: string) {
-+		return this.<%= lowercased(name) %>Service.softRemoveById(id);
++		return this.<%= lowercased(name) %>Handler.removeById(id);
 +	}
  }
+diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.handler.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.handler.ts
+new file mode 100644
+index 0000000..815f991
+--- /dev/null
++++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.handler.ts
+@@ -0,0 +1,9 @@
++import { Injectable } from '@nestjs/common';
++import { I<%= classify(name) %>Handler, I<%= classify(name) %>Service } from './<%= name %>.interface';
++
++@Injectable()
++export class <%= classify(name) %>Handler extends I<%= classify(name) %>Handler {
++	constructor(private readonly <%= lowercased(name) %>Service: I<%= classify(name) %>Service) {
++		super(<%= lowercased(name) %>Service);
++	}
++}
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.interface.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.interface.ts
 new file mode 100644
-index 0000000..128197f
+index 0000000..32c87df
 --- /dev/null
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.interface.ts
-@@ -0,0 +1,4 @@
-+import { BaseService } from '@common';
+@@ -0,0 +1,6 @@
++import { BaseHandler, BaseService } from '@common';
 +import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';
 +
 +export abstract class I<%= classify(name) %>Service extends BaseService<<%= classify(name) %>Entity> {}
++
++export abstract class I<%= classify(name) %>Handler extends BaseHandler<<%= classify(name) %>Entity> {}
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts
-index 78a5afc..cb4536e 100644
+index 78a5afc..fab2653 100644
 --- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts
-@@ -1,9 +1,21 @@
+@@ -1,9 +1,26 @@
  import { Module } from '@nestjs/common';
 +import { TypeOrmModule } from '@nestjs/typeorm';
++import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';
 +import { <%= classify(name) %>Controller } from './<%= name %>.controller';
-+import { I<%= classify(name) %>Service } from './<%= name %>.interface';
++import { <%= classify(name) %>Handler } from './<%= name %>.handler';
++import { I<%= classify(name) %>Handler, I<%= classify(name) %>Service } from './<%= name %>.interface';
 +import { <%= classify(name) %>Repository } from './<%= name %>.repository';
  import { <%= classify(name) %>Service } from './<%= name %>.service';
 -<% if (type === 'rest' || type === 'microservice') { %>import { <%= classify(name) %>Controller } from './<%= name %>.controller';<% } %><% if (type === 'graphql-code-first' || type === 'graphql-schema-first') { %>import { <%= classify(name) %>Resolver } from './<%= name %>.resolver';<% } %><% if (type === 'ws') { %>import { <%= classify(name) %>Gateway } from './<%= name %>.gateway';<% } %>
-+import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';
  
  @Module({
 -  <% if (type === 'rest' || type === 'microservice') { %>controllers: [<%= classify(name) %>Controller],
 -  providers: [<%= classify(name) %>Service],<% } else if (type === 'graphql-code-first' || type === 'graphql-schema-first') { %>providers: [<%= classify(name) %>Resolver, <%= classify(name) %>Service],<% } else { %>providers: [<%= classify(name) %>Gateway, <%= classify(name) %>Service],<% } %>
-+	imports: [TypeOrmModule.forFeature([<%= classify(name) %>Entity])],
++	imports: [TypeOrmModule.forFeature([<%= classify(name) %>Entity]), <%= classify(name) %>Module],
 +	controllers: [<%= classify(name) %>Controller],
 +	providers: [
 +		{
 +			provide: I<%= classify(name) %>Service,
 +			useClass: <%= classify(name) %>Service
++		},
++		{
++			provide: I<%= classify(name) %>Handler,
++			useClass: <%= classify(name) %>Handler
 +		},
 +		<%= classify(name) %>Repository
 +	],
@@ -283,16 +304,16 @@ index 362e741..874cdfb 100644
 +export class <%= classify(name) %>Entity extends BaseEntityWithMerchant {}
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.controller.__specFileSuffix__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.controller.__specFileSuffix__.ts
 new file mode 100644
-index 0000000..6138c0e
+index 0000000..7dbb1cb
 --- /dev/null
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.controller.__specFileSuffix__.ts
 @@ -0,0 +1,28 @@
 +import { Test, TestingModule } from '@nestjs/testing';
 +import { <%= classify(name) %>Controller } from '../<%= name %>.controller';
-+import { I<%= classify(name) %>Service } from '../<%= name %>.interface';
-+import { <%= classify(name) %>Service } from '../<%= name %>.service';
++import { I<%= classify(name) %>Handler } from '../<%= name %>.interface';
++import { <%= classify(name) %>Handler } from '../<%= name %>.handler';
 +
-+jest.mock('../<%= name %>.service');
++jest.mock('../<%= name %>.handler');
 +
 +describe('<%= classify(name) %>Controller', () => {
 +	let controller: <%= classify(name) %>Controller;
@@ -302,8 +323,8 @@ index 0000000..6138c0e
 +			controllers: [<%= classify(name) %>Controller],
 +			providers: [
 +				{
-+					provide: I<%= classify(name) %>Service,
-+					useClass: <%= classify(name) %>Service
++					provide: I<%= classify(name) %>Handler,
++					useClass: <%= classify(name) %>Handler
 +				}
 +			]
 +		}).compile();
