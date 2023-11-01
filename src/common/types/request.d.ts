@@ -10,6 +10,7 @@ declare global {
 		token: string;
 	};
 	type Merchant = {
+		applicationId: string;
 		merchantId: string;
 		type: 'merchant';
 		token: string;

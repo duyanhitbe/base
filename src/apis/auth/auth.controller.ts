@@ -76,7 +76,7 @@ export class AuthController {
 			}
 		}
 	})
-	logoutAdmin(@User() user: ReqUser) {
+	logoutAdmin(@User() user: Admin) {
 		return this.authService.logout(user);
 	}
 
@@ -91,7 +91,7 @@ export class AuthController {
 			}
 		}
 	})
-	logoutApplication(@User() user: ReqUser) {
+	logoutApplication(@User() user: Application) {
 		return this.authService.logout(user);
 	}
 
@@ -106,7 +106,7 @@ export class AuthController {
 			}
 		}
 	})
-	logoutMerchant(@User() user: ReqUser) {
+	logoutMerchant(@User() user: Merchant) {
 		return this.authService.logout(user);
 	}
 
@@ -119,7 +119,7 @@ export class AuthController {
 			$ref: getSchemaPath(AdminEntity)
 		}
 	})
-	changePasswordAdmin(@User() user: ReqUser, @Body() changePasswordDto: ChangePasswordDto) {
+	changePasswordAdmin(@User() user: Admin, @Body() changePasswordDto: ChangePasswordDto) {
 		return this.authService.changePassword(user, changePasswordDto);
 	}
 
@@ -132,7 +132,7 @@ export class AuthController {
 			$ref: getSchemaPath(MerchantEntity)
 		}
 	})
-	changePasswordUser(@User() user: ReqUser, @Body() changePasswordDto: ChangePasswordDto) {
+	changePasswordUser(@User() user: Merchant, @Body() changePasswordDto: ChangePasswordDto) {
 		return this.authService.changePassword(user, changePasswordDto);
 	}
 }

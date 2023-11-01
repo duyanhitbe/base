@@ -19,11 +19,11 @@ export class ApplicationJwtStrategy extends PassportStrategy(Strategy, 'applicat
 		});
 	}
 
-	async validate(req: Request, payload: ApplicationPayload) {
+	async validate(req: Request, payload: ApplicationPayload): Promise<Application> {
 		const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
 		if (!token) throw new UnauthorizedException('Missing token');
 		await this.authService.validateToken(token, payload.id);
 		await this.authService.validateById(payload.id, 'application');
-		return { applicationId: payload.id, type: payload.type };
+		return { applicationId: payload.id, type: payload.type, token };
 	}
 }
