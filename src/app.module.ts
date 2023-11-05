@@ -41,7 +41,9 @@ import { RedisModule } from './modules/redis/redis.module';
 		AppService,
 		{
 			provide: APP_PIPE,
-			useClass: ValidationPipe
+			useFactory() {
+				return new ValidationPipe({ transform: true, whitelist: true });
+			}
 		},
 		{
 			provide: APP_INTERCEPTOR,
