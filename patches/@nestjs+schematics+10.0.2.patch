@@ -302,6 +302,27 @@ index 362e741..874cdfb 100644
 -}<% } else { %>export class <%= singular(classify(name)) %> {}<% } %>
 +@Entity({ name: '<%= name %>', schema: SCHEMA })
 +export class <%= classify(name) %>Entity extends BaseEntityWithMerchant {}
+diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.handler.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.handler.ts
+new file mode 100644
+index 0000000..897422f
+--- /dev/null
++++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.handler.ts
+@@ -0,0 +1 @@
++export const <%= classify(name) %>Handler = jest.fn().mockReturnValue({});
+diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.repository.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.repository.ts
+new file mode 100644
+index 0000000..41cdb3b
+--- /dev/null
++++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.repository.ts
+@@ -0,0 +1 @@
++export const <%= classify(name) %>Repository = jest.fn().mockReturnValue({});
+diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.service.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.service.ts
+new file mode 100644
+index 0000000..d36e25e
+--- /dev/null
++++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.service.ts
+@@ -0,0 +1 @@
++export const <%= classify(name) %>Service = jest.fn().mockReturnValue({});
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.controller.__specFileSuffix__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/test/__name__.controller.__specFileSuffix__.ts
 new file mode 100644
 index 0000000..7dbb1cb

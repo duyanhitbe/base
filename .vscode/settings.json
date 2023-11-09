@@ -1,0 +1,45 @@
+{
+	//Material icon
+	"material-icon-theme.activeIconPack": "nest",
+	"material-icon-theme.files.associations": {
+		"ecosystem.config.js": "pipeline",
+		"*.resolver.ts": "nest-guard",
+		"*.middleware.ts": "nest-middleware",
+		"*.dto.ts": "nest-resolver",
+		"*.entity.ts": "database",
+		"*.decorator.ts": "nest-decorator",
+		"*.provider.ts": "nest-pipe",
+		"*.filter.ts": "nest-pipe",
+		"*.interceptor.ts": "nest-gateway",
+		"*.helper.ts": "smarty",
+		"*.validation.ts": "commitlint",
+		".env*": "tune",
+		"*.schema.ts": "scala",
+		"*.swagger.ts": "document",
+		"swagger.ts": "document",
+		"*.repository.ts": "replit",
+		"main.ts": "nest"
+	},
+	"material-icon-theme.folders.associations": {
+		"entities": "context",
+		"entity": "context",
+		"dto": "other",
+		"dtos": "other",
+		"user": "admin",
+		"users": "admin",
+		"exception": "error",
+		"exceptions": "error",
+		"interceptors": "pipe",
+		"interceptor": "pipe",
+		"filters": "pipe",
+		"swagger": "docs",
+		"swaggers": "docs"
+	},
+
+	"[typescript]": {
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			"source.organizeImports": true
+		}
+	}
+}
