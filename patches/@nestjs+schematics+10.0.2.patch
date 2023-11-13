@@ -173,7 +173,7 @@ index 0000000..32c87df
 +
 +export abstract class I<%= classify(name) %>Handler extends BaseHandler<<%= classify(name) %>Entity> {}
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts
-index 78a5afc..fab2653 100644
+index 78a5afc..22b7e72 100644
 --- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.module.ts
 @@ -1,9 +1,26 @@
@@ -190,7 +190,7 @@ index 78a5afc..fab2653 100644
  @Module({
 -  <% if (type === 'rest' || type === 'microservice') { %>controllers: [<%= classify(name) %>Controller],
 -  providers: [<%= classify(name) %>Service],<% } else if (type === 'graphql-code-first' || type === 'graphql-schema-first') { %>providers: [<%= classify(name) %>Resolver, <%= classify(name) %>Service],<% } else { %>providers: [<%= classify(name) %>Gateway, <%= classify(name) %>Service],<% } %>
-+	imports: [TypeOrmModule.forFeature([<%= classify(name) %>Entity]), <%= classify(name) %>Module],
++	imports: [TypeOrmModule.forFeature([<%= classify(name) %>Entity])],
 +	controllers: [<%= classify(name) %>Controller],
 +	providers: [
 +		{
