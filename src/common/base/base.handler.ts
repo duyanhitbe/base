@@ -2,10 +2,13 @@ import { DeepPartial } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { GetAllQueryDto, PaginationDto } from './base.dto';
 import { BaseEntity } from './base.entity';
+import { IBaseHandler } from './base.interface';
 import { BaseService } from './base.service';
 
-export class BaseHandler<T extends BaseEntity> {
-	constructor(private readonly service: BaseService<T>) {}
+export class BaseHandler<T extends BaseEntity> extends IBaseHandler<T> {
+	constructor(private readonly service: BaseService<T>) {
+		super();
+	}
 
 	create(data: DeepPartial<T>) {
 		return this.service.create(data);
@@ -23,7 +26,7 @@ export class BaseHandler<T extends BaseEntity> {
 	}
 
 	getOneById(id: string) {
-		return this.service.getOneById(id);
+		return this.service.getOneByIdOrFail(id);
 	}
 
 	updateById(id: string, data: QueryDeepPartialEntity<T>) {

@@ -19,6 +19,7 @@ export function useSwagger(app: INestApplication) {
 	});
 	SwaggerModule.setup(path, app, document, {
 		swaggerOptions: {
+			persistAuthorization: true,
 			tagsSorter: 'alpha',
 			operationsSorter: (a, b) => {
 				const methodsOrder = ['get', 'post', 'put', 'patch', 'delete', 'options', 'trace'];

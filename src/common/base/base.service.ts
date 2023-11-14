@@ -14,9 +14,9 @@ import {
 	Repository
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { AbstractBaseService } from '../interfaces/base-service.interface';
+import { IBaseService } from './base.interface';
 
-export class BaseService<T extends BaseEntity> extends AbstractBaseService<T> {
+export class BaseService<T extends BaseEntity> extends IBaseService<T> {
 	constructor(private readonly repository: Repository<T>) {
 		super();
 	}

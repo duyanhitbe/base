@@ -9,14 +9,13 @@ import { RedisService } from '@modules';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
-import { AuthHelper } from './auth.helper';
-import { IAuthHandler } from './auth.interface';
+import { IAuthHandler, IAuthService } from './auth.interface';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthHandler extends IAuthHandler {
 	constructor(
-		private readonly authHelper: AuthHelper,
+		private readonly authService: IAuthService,
 		private readonly adminService: IAdminService,
 		private readonly applicationService: IApplicationService,
 		private readonly merchantService: IMerchantService,
@@ -119,7 +118,7 @@ export class AuthHandler extends IAuthHandler {
 	async generateToken(user: AdminEntity | ApplicationEntity | MerchantEntity, type: UserType) {
 		/** Secret JWT */
 		const secret = process.env.SECRET_JWT;
-		const payload = this.authHelper.getJwtPayload(user, type);
+		const payload = this.authService.getJwtPayload(user, type);
 
 		/** Generate Token */
 		const accessToken = this.jwtService.sign(payload, { secret });
@@ -132,7 +131,7 @@ export class AuthHandler extends IAuthHandler {
 
 	/** Đăng xuất */
 	async logout(user: ReqUser) {
-		const id = this.authHelper.getUserId(user);
+		const id = this.authService.getUserId(user);
 
 		/** Xóa token khỏi cache */
 		const redisKey = this.getRedisKey(id);

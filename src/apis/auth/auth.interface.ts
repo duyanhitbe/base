@@ -3,6 +3,17 @@ import { ApplicationEntity } from '@apis/application/entities/application.entity
 import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
+export abstract class IAuthService {
+    /** Lấy id của user */
+    abstract getUserId(user: ReqUser): string;
+
+    /** Lấy payload token */
+    abstract getJwtPayload(user: AdminEntity, type: 'admin'): JWTPayload;
+    abstract getJwtPayload(user: ApplicationEntity, type: 'application'): JWTPayload;
+    abstract getJwtPayload(user: MerchantEntity, type: 'merchant'): JWTPayload;
+    abstract getJwtPayload(user: AdminEntity | ApplicationEntity | MerchantEntity, type: UserType): JWTPayload;
+}
+
 export abstract class IAuthHandler {
     /** Kiểm tra tài khoản admin */
 	abstract validateAdmin(username: string, password: string): Promise<AdminEntity>;

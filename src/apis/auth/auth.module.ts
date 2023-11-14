@@ -6,8 +6,8 @@ import { JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthHandler } from './auth.handler';
-import { AuthHelper } from './auth.helper';
-import { IAuthHandler } from './auth.interface';
+import { IAuthHandler, IAuthService } from './auth.interface';
+import { AuthService } from './auth.service';
 import { AdminJwtStrategy } from './strategies/jwt/admin.jwt.strategy';
 import { ApplicationJwtStrategy } from './strategies/jwt/application.jwt.strategy';
 import { MerchantJwtStrategy } from './strategies/jwt/merchant.jwt.strategy';
@@ -23,7 +23,10 @@ import { MerchantLocalStrategy } from './strategies/local/merchant.local.strateg
 			provide: IAuthHandler,
 			useClass: AuthHandler
 		},
-		AuthHelper,
+		{
+			provide: IAuthService,
+			useClass: AuthService
+		},
 		AdminLocalStrategy,
 		ApplicationLocalStrategy,
 		MerchantLocalStrategy,

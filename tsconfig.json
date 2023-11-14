@@ -20,6 +20,7 @@
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
     "paths": {
       "@modules": ["src/modules"],
       "@common": ["src/common"],

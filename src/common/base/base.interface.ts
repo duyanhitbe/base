@@ -1,8 +1,8 @@
-import { BaseEntity } from '@common';
+import { BaseEntity, GetAllQueryDto, PaginationDto } from '@common';
 import { DeepPartial, SelectQueryBuilder } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-export abstract class AbstractBaseService<T extends BaseEntity> {
+export abstract class IBaseService<T extends BaseEntity> {
 	/** Tạo một record */
 	abstract create(data: DeepPartial<T>): Promise<T>;
 	/** Tạo nhiều record */
@@ -46,4 +46,24 @@ export abstract class AbstractBaseService<T extends BaseEntity> {
 	abstract countInNumberOfDay(numberOfDays: number, options: Partial<FindOptions<T>>): Promise<CountInNumberOfDayData>;
 
 	abstract getQueryBuilder(alias?: string): SelectQueryBuilder<T>;
+}
+
+export abstract class IBaseHandler<T extends BaseEntity>{
+	/** Tạo một record */
+	abstract create(data: DeepPartial<T>): Promise<T>
+
+	/** Lấy tất cả record và phân trang */
+	abstract getAllWithPagination(query: PaginationDto): Promise<IPaginationResponse<T>>
+
+	/** Lấy tất cả record */
+	abstract getAll(query: GetAllQueryDto): Promise<T[]>
+
+	/** Lấy một record theo id, nếu không tìm thấy, trả về lỗi NotFound */
+	abstract getOneById(id: string): Promise<T>
+
+	/** Cập nhật một record theo id, nếu không tìm thấy, trả về lỗi NotFound */
+	abstract updateById(id: string, data: QueryDeepPartialEntity<T>): Promise<T>
+
+	/** Xoá mềm một record theo id */
+	abstract removeById(id: string): Promise<T>
 }

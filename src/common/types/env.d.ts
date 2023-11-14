@@ -6,7 +6,7 @@ declare global {
 			/** Port của app */
 			PORT: number;
 			/** Tên schema của database */
-			SCHEMA: string;
+			DB_SCHEMA: string;
 			/** Host của database */
 			DB_HOST: string;
 			/** Port của database */

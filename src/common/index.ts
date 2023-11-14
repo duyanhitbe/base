@@ -6,8 +6,6 @@ export * from './base/base.handler';
 export * from './base/base.service';
 export * from './base/base.swagger';
 
-export * from './interfaces/base-service.interface';
-
 export * from './helpers/getTokenFromHeader.helper';
 
 export * from './decorators/use-admin-guard.decorator';

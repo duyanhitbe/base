@@ -2,9 +2,10 @@ import { AdminEntity } from '@apis/admin/entities/admin.entity';
 import { ApplicationEntity } from '@apis/application/entities/application.entity';
 import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { IAuthService } from './auth.interface';
 
 @Injectable()
-export class AuthHelper {
+export class AuthService extends IAuthService {
 	getJwtPayload(
 		user: AdminEntity | ApplicationEntity | MerchantEntity,
 		type: UserType
