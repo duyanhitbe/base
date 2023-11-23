@@ -9,6 +9,8 @@ export type I18nTranslations = {
 		IS_EMAIL: string;
 		IS_NUMBER_STRING: string;
 		IS_DATE_STRING: string;
+		MIN: string;
+		MAX: string;
 	};
 };
 export type I18nPath = Path<I18nTranslations>;
