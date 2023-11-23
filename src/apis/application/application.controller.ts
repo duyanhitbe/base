@@ -11,14 +11,13 @@ import {
 	User
 } from '@common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiParam } from '@nestjs/swagger';
 import { IApplicationHandler } from './application.interface';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
 import { ApplicationEntity } from './entities/application.entity';
 
 @Controller('application')
-@ApiTags('Application API')
 export class ApplicationController {
 	constructor(private readonly applicationHandler: IApplicationHandler) {}
 

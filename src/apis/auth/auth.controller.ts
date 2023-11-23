@@ -4,7 +4,7 @@ import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
 import { UseAdminGuard, UseApplicationGuard, UseMerchantGuard, User } from '@common';
 import { Body, Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOkResponse, ApiOperation, ApiTags, getSchemaPath } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, getSchemaPath } from '@nestjs/swagger';
 import { Request } from 'express';
 import { IAuthHandler } from './auth.interface';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -13,7 +13,6 @@ import { GenerateTokenApplicationDto } from './dto/generate-token-application.dt
 import { GenerateTokenMerchantDto } from './dto/generate-token-merchant.dto';
 
 @Controller('auth')
-@ApiTags('Auth API')
 export class AuthController {
 	constructor(private readonly authService: IAuthHandler) {}
 

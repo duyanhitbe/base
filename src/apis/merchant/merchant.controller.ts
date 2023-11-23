@@ -11,7 +11,7 @@ import {
 	User
 } from '@common';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiParam, ApiTags, getSchemaPath } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiParam, getSchemaPath } from '@nestjs/swagger';
 import { Request } from 'express';
 import { CreateMerchantDto } from './dto/create-merchant.dto';
 import { UpdateMerchantDto } from './dto/update-merchant.dto';
@@ -19,7 +19,6 @@ import { MerchantEntity } from './entities/merchant.entity';
 import { IMerchantHandler } from './merchant.interface';
 
 @Controller('merchant')
-@ApiTags('Merchant API')
 export class MerchantController {
 	constructor(private readonly merchantHandler: IMerchantHandler) {}
 
