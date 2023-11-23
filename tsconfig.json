@@ -24,7 +24,8 @@
     "paths": {
       "@modules": ["src/modules"],
       "@common": ["src/common"],
-      "@apis/*": ["src/apis/*"]
+      "@apis/*": ["src/apis/*"],
+      "packageJson": ["package.json"]
     }
   }
 }

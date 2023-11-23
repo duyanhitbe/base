@@ -105,7 +105,8 @@
       "src/(.*)": "<rootDir>/$1",
       "@common": "<rootDir>/common",
       "@modules": "<rootDir>/modules",
-      "@apis/(.*)": "<rootDir>/apis/$1"
+      "@apis/(.*)": "<rootDir>/apis/$1",
+      "packageJson": "<rootDir>/../package.json"
     }
   },
   "lint-staged": {

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-const packageJson = require('../../package.json');
+import * as packageJson from 'packageJson';
 
 @Injectable()
 export class AppService {

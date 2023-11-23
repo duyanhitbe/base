@@ -5,25 +5,24 @@ import { ApplicationService } from '@apis/application/application.service';
 import { IMerchantService } from '@apis/merchant/merchant.interface';
 import { MerchantService } from '@apis/merchant/merchant.service';
 import { RedisService } from '@modules';
-import { JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthHandler } from '../auth.handler';
 import { IAuthHandler, IAuthService } from '../auth.interface';
 import { AuthService } from '../auth.service';
 
+jest.mock('../auth.service');
 jest.mock('../../admin/admin.service');
 jest.mock('../../application/application.service');
 jest.mock('../../merchant/merchant.service');
 jest.mock('../../../modules/redis/redis.service');
 
 describe('AuthHandler', () => {
-	let service: IAuthHandler;
-	let jwtService: JwtService;
+	let handler: IAuthHandler;
 
 	beforeEach(async () => {
-		jwtService = {} as JwtService;
-
 		const module: TestingModule = await Test.createTestingModule({
+			imports: [JwtModule.register({})],
 			providers: [
 				{
 					provide: IAuthHandler,
@@ -32,10 +31,6 @@ describe('AuthHandler', () => {
 				{
 					provide: IAuthService,
 					useClass: AuthService
-				},
-				{
-					provide: JwtService,
-					useValue: jwtService
 				},
 				{
 					provide: IAdminService,
@@ -53,10 +48,10 @@ describe('AuthHandler', () => {
 			]
 		}).compile();
 
-		service = module.get<IAuthHandler>(IAuthHandler);
+		handler = module.get<IAuthHandler>(IAuthHandler);
 	});
 
 	it('should be defined', () => {
-		expect(service).toBeDefined();
+		expect(handler).toBeDefined();
 	});
 });

@@ -25,10 +25,10 @@ index 17e5843..0000000
 -  });
 -});
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts
-index 8d1b7b4..ea72ee0 100644
+index 8d1b7b4..acc75ff 100644
 --- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/__name__.controller.ts
-@@ -1,63 +1,55 @@
+@@ -1,63 +1,54 @@
 -<% if (crud && type === 'rest') { %>import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';<%
 -} else if (crud && type === 'microservice') { %>import { Controller } from '@nestjs/common';
 -import { MessagePattern, Payload } from '@nestjs/microservices';<%
@@ -49,14 +49,13 @@ index 8d1b7b4..ea72ee0 100644
 +	PaginationDto
 +} from '@common';
 +import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-+import { ApiParam, ApiTags } from '@nestjs/swagger';
++import { ApiParam } from '@nestjs/swagger';
 +import { Create<%= classify(name) %>Dto } from './dto/create-<%= name %>.dto';
 +import { Update<%= classify(name) %>Dto } from './dto/update-<%= name %>.dto';
 +import { <%= classify(name) %>Entity } from './entities/<%= name %>.entity';
 +import { I<%= classify(name) %>Handler } from './<%= name %>.interface';
 +
 +@Controller('<%= name %>')
-+@ApiTags('<%= classify(name) %> API')
  export class <%= classify(name) %>Controller {
 -  constructor(private readonly <%= lowercased(name) %>Service: <%= classify(name) %>Service) {}<% if (type === 'rest' && crud) { %>
 -
@@ -287,7 +286,7 @@ index 21943aa..46d13e0 100644
 +	}
 +}
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/entities/__name@singular@ent__.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/entities/__name@singular@ent__.ts
-index 362e741..73e6c18 100644
+index 362e741..dfdfb4c 100644
 --- a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/entities/__name@singular@ent__.ts
 +++ b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/entities/__name@singular@ent__.ts
 @@ -1,7 +1,5 @@
@@ -300,7 +299,7 @@ index 362e741..73e6c18 100644
 -  @Field(() => Int, { description: 'Example field (placeholder)' })
 -  exampleField: number;
 -}<% } else { %>export class <%= singular(classify(name)) %> {}<% } %>
-+@Entity({ name: '<%= name %>' })
++@Entity({ name: '<%= dashed(name) %>' })
 +export class <%= classify(name) %>Entity extends BaseEntityWithMerchant {}
 diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.handler.ts b/node_modules/@nestjs/schematics/dist/lib/resource/files/ts/mocks/__name__.handler.ts
 new file mode 100644
@@ -425,3 +424,15 @@ index 0000000..372e805
 +		expect(service).toBeDefined();
 +	});
 +});
+diff --git a/node_modules/@nestjs/schematics/dist/lib/resource/resource.factory.js b/node_modules/@nestjs/schematics/dist/lib/resource/resource.factory.js
+index ec9b486..a475c0d 100644
+--- a/node_modules/@nestjs/schematics/dist/lib/resource/resource.factory.js
++++ b/node_modules/@nestjs/schematics/dist/lib/resource/resource.factory.js
+@@ -90,6 +90,7 @@ function generate(options) {
+                 return (classifiedName.charAt(0).toLowerCase() + classifiedName.slice(1));
+             },
+             singular: (name) => pluralize.singular(name),
++            dashed: (name) => name.split('-').join('_'),
+             ent: (name) => name + '.entity',
+         }),
+         (0, schematics_1.move)(options.path),
