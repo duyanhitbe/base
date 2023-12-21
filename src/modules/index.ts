@@ -9,5 +9,8 @@ export * from './redis/redis.module';
 export * from './redis/redis.service';
 
 export * from './i18n/generated/i18n.generated';
-export * from './i18n/i18n.module';
 export * from './i18n/i18n.helper';
+export * from './i18n/i18n.module';
+
+export * from './mail/mail.module';
+export * from './mail/mail.service';

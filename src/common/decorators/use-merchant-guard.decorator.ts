@@ -1,6 +1,6 @@
+import { MerchantJwtAuthGuard } from '@common';
 import { UseGuards, applyDecorators } from '@nestjs/common';
 import { ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { MerchantJwtAuthGuard } from '../guards/merchant.guard';
 
 export const UseMerchantGuard = () =>
 	applyDecorators(

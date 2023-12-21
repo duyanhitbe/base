@@ -2,7 +2,7 @@ import { translate } from '@modules';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class GenerateTokenMerchantDto {
+export class GenerateTokenApplicationDto {
 	/** Tài khoản */
 	@ApiProperty({ description: 'Tài khoản' })
 	@IsString({ message: translate('validation.IS_STRING') })

@@ -11,24 +11,19 @@ export abstract class IAuthService {
     abstract getJwtPayload(user: AdminEntity, type: 'admin'): JWTPayload;
     abstract getJwtPayload(user: ApplicationEntity, type: 'application'): JWTPayload;
     abstract getJwtPayload(user: MerchantEntity, type: 'merchant'): JWTPayload;
-    abstract getJwtPayload(user: AdminEntity | ApplicationEntity | MerchantEntity, type: UserType): JWTPayload;
+    abstract getJwtPayload(user: User, type: UserType): JWTPayload;
 }
 
 export abstract class IAuthHandler {
-    /** Kiểm tra tài khoản admin */
-	abstract validateAdmin(username: string, password: string): Promise<AdminEntity>;
-    /** Kiểm tra tài khoản application */
-	abstract validateApplication(clientKey: string, secretKey: string): Promise<ApplicationEntity>;
-    /** Kiểm tra tài khoản merchant */
-	abstract validateMerchant(email: string, password: string): Promise<MerchantEntity>;
+	abstract validateUser(type: UserType, username: string, password: string): Promise<User>;
     /** Kiểm tra tài khoản bằng id */
-    abstract validateById(id: string, type: UserType): Promise<void>;
+    abstract validateById(type: UserType, id: string): Promise<void>;
     /** Tạo token */
-    abstract generateToken(user: AdminEntity | ApplicationEntity | MerchantEntity, type: UserType): Promise<GenerateTokenData>;
+    abstract generateToken(type: UserType, user: User): Promise<GenerateTokenData>;
     /** Đăng xuất */
     abstract logout(user: ReqUser): Promise<LogoutData>;
     /** Đổi mật khẩu */
-    abstract changePassword(userReq: ReqUser, dto: ChangePasswordDto): Promise<AdminEntity | MerchantEntity>;
+    abstract changePassword(userReq: ReqUser, dto: ChangePasswordDto): Promise<User>;
     /** Kiểm tra token có đúng không */
     abstract validateToken(token: string, id: string): Promise<void>;
 }

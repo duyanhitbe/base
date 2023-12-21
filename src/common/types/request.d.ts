@@ -1,3 +1,7 @@
+import { AdminEntity } from '@apis/admin/entities/admin.entity';
+import { ApplicationEntity } from '@apis/application/entities/application.entity';
+import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
+
 declare global {
 	type Admin = {
 		adminId: string;
@@ -17,7 +21,7 @@ declare global {
 	};
 
 	type UserType = 'admin' | 'application' | 'merchant';
-
+	type User = ApplicationEntity | AdminEntity | MerchantEntity;
 	type ReqUser = Admin | Application | Merchant;
 }
 

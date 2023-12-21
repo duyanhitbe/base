@@ -1,7 +1,8 @@
 export const EventKey = {};
 
 export const MetadataKey = {
-	REDIS: 'REDIS'
+	REDIS: 'REDIS',
+	NODEMAILER: 'NODEMAILER'
 };
 
 export const RedisPrefix = {

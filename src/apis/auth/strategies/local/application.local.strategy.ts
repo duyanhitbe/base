@@ -13,6 +13,6 @@ export class ApplicationLocalStrategy extends PassportStrategy(Strategy, 'applic
 	}
 
 	async validate(clientKey: string, secretKey: string): Promise<any> {
-		return this.authService.validateApplication(clientKey, secretKey);
+		return this.authService.validateUser('application', clientKey, secretKey);
 	}
 }

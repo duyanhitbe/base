@@ -3,15 +3,20 @@ import { ApplicationEntity } from '@apis/application/entities/application.entity
 import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
 import { INestApplication, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as packageJson from 'packageJson';
 
 export function useSwagger(app: INestApplication) {
 	const logger = new Logger('Swagger');
 	const port = process.env.PORT || 3000;
 	const path = 'docs';
+	const title = 'Base documentation';
+	const version = packageJson.version;
+	const description = packageJson.description;
+
 	const config = new DocumentBuilder()
-		.setTitle('Service Documentation')
-		.setDescription('Description')
-		.setVersion('1.0')
+		.setTitle(title)
+		.setDescription(description)
+		.setVersion(version)
 		.addBearerAuth()
 		.build();
 	const document = SwaggerModule.createDocument(app, config, {

@@ -17,6 +17,8 @@ import * as Joi from 'joi';
 				DB_USERNAME: Joi.string().required(),
 				DB_PASSWORD: Joi.string().required(),
 				DB_NAME: Joi.string().required(),
+				ADMIN_USERNAME: Joi.string().required(),
+				ADMIN_PASSWORD: Joi.string().required(),
 
 				REDIS_HOST: Joi.string().default('localhost'),
 				REDIS_PORT: Joi.number().default(6379),
@@ -24,7 +26,12 @@ import * as Joi from 'joi';
 				REDIS_PASSWORD: Joi.string().required(),
 				REDIS_PREFIX: Joi.string().required(),
 
-				SECRET_JWT: Joi.string().required()
+				SECRET_JWT: Joi.string().required(),
+
+				MAIL_HOST: Joi.string().required(),
+				MAIL_FROM: Joi.string().required(),
+				MAIL_USER: Joi.string().required(),
+				MAIL_PASS: Joi.string().required()
 			})
 		})
 	]

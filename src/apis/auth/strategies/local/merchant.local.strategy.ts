@@ -7,12 +7,12 @@ import { Strategy } from 'passport-local';
 export class MerchantLocalStrategy extends PassportStrategy(Strategy, 'merchant-local') {
 	constructor(private authService: IAuthHandler) {
 		super({
-			usernameField: 'email',
+			usernameField: 'username',
 			passwordField: 'password'
 		});
 	}
 
-	async validate(email: string, password: string): Promise<any> {
-		return this.authService.validateMerchant(email, password);
+	async validate(username: string, password: string): Promise<any> {
+		return this.authService.validateUser('merchant', username, password);
 	}
 }

@@ -1,6 +1,6 @@
+import { AdminJwtAuthGuard } from '@common';
 import { UseGuards, applyDecorators } from '@nestjs/common';
 import { ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { AdminJwtAuthGuard } from '../guards/admin.guard';
 
 export const UseAdminGuard = () =>
 	applyDecorators(

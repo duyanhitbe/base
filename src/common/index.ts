@@ -1,4 +1,3 @@
-export * from './base/base-with-application.entity';
 export * from './base/base-with-merchant.entity';
 export * from './base/base.dto';
 export * from './base/base.entity';
@@ -12,6 +11,9 @@ export * from './decorators/use-admin-guard.decorator';
 export * from './decorators/use-application-guard.decorator';
 export * from './decorators/use-merchant-guard.decorator';
 export * from './decorators/user.decorator';
+
+export * from './guards/admin.guard';
+export * from './guards/merchant.guard';
 
 export * from './constants';
 

@@ -1,8 +1,5 @@
 import { IAdminService } from '@apis/admin/admin.interface';
-import { AdminEntity } from '@apis/admin/entities/admin.entity';
 import { IApplicationService } from '@apis/application/application.interface';
-import { ApplicationEntity } from '@apis/application/entities/application.entity';
-import { MerchantEntity } from '@apis/merchant/entities/merchant.entity';
 import { IMerchantService } from '@apis/merchant/merchant.interface';
 import { RedisPrefix } from '@common';
 import { RedisService } from '@modules';
@@ -17,54 +14,44 @@ export class AuthHandler extends IAuthHandler {
 	constructor(
 		private readonly authService: IAuthService,
 		private readonly adminService: IAdminService,
-		private readonly applicationService: IApplicationService,
 		private readonly merchantService: IMerchantService,
+		private readonly applicationService: IApplicationService,
 		private readonly jwtService: JwtService,
 		private readonly redisService: RedisService
 	) {
 		super();
 	}
 
-	/** Xác thực tài khoản admin */
-	async validateAdmin(username: string, password: string) {
-		const admin = await this.adminService.getOne({ where: { username } });
-		if (!admin) {
+	/** Lấy thông tin tài khoản */
+	private getUserByUserType(
+		type: UserType,
+		options: FindOrFailOptions<User>
+	): Promise<User | null> {
+		switch (type) {
+			case 'admin':
+				return this.adminService.getOne(options);
+			case 'application':
+				return this.applicationService.getOne(options);
+			case 'merchant':
+				return this.merchantService.getOne(options);
+		}
+	}
+
+	/** Xác thực tài khoản */
+	async validateUser(type: UserType, username: string, password: string): Promise<User> {
+		const user = await this.getUserByUserType(type, { where: { username } });
+		if (!user) {
 			throw new UnauthorizedException('Tài khoản không tồn tại');
 		}
-		const comparePassword = await argon2.verify(admin.password, password);
+		const comparePassword = await argon2.verify(user.password, password);
 		if (!comparePassword) {
 			throw new UnauthorizedException('Sai mật khẩu');
 		}
-		return admin;
-	}
-
-	/** Xác thực tài khoản app */
-	async validateApplication(clientKey: string, secretKey: string) {
-		const application = await this.applicationService.getOne({ where: { clientKey } });
-		if (!application) {
-			throw new UnauthorizedException('Tài khoản không tồn tại');
-		}
-		if (application.secretKey !== secretKey) {
-			throw new UnauthorizedException('Sai secret key');
-		}
-		return application;
-	}
-
-	/** Xác thực tài khoản đối tác */
-	async validateMerchant(email: string, password: string) {
-		const merchant = await this.merchantService.getOne({ where: { email } });
-		if (!merchant) {
-			throw new UnauthorizedException('Tài khoản không tồn tại');
-		}
-		const comparePassword = await argon2.verify(merchant.password, password);
-		if (!comparePassword) {
-			throw new UnauthorizedException('Sai mật khẩu');
-		}
-		return merchant;
+		return user;
 	}
 
 	/** Xác thực tài khoản bằng id */
-	async validateById(id: string, type: UserType) {
+	async validateById(type: UserType, id: string) {
 		let user;
 		switch (type) {
 			case 'admin':
@@ -115,7 +102,7 @@ export class AuthHandler extends IAuthHandler {
 	}
 
 	/** Tạo accessToken */
-	async generateToken(user: AdminEntity | ApplicationEntity | MerchantEntity, type: UserType) {
+	async generateToken(type: UserType, user: User) {
 		/** Secret JWT */
 		const secret = process.env.SECRET_JWT;
 		const payload = this.authService.getJwtPayload(user, type);
@@ -144,7 +131,7 @@ export class AuthHandler extends IAuthHandler {
 
 	/** Đổi mật khẩu */
 	async changePassword(userReq: ReqUser, dto: ChangePasswordDto) {
-		let user: AdminEntity | MerchantEntity | null = null;
+		let user: User | null = null;
 		switch (userReq.type) {
 			case 'admin':
 				user = await this.adminService.getOneByIdOrFail(userReq.adminId);

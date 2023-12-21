@@ -1,6 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import * as argon2 from 'argon2';
+import { Exclude } from 'class-transformer';
 import { BaseEntity } from 'src/common/base/base.entity';
-import { Column, Entity } from 'typeorm';
+import { BeforeInsert, Column, Entity } from 'typeorm';
 
 @Entity({ name: 'application' })
 export class ApplicationEntity extends BaseEntity {
@@ -9,13 +11,19 @@ export class ApplicationEntity extends BaseEntity {
 	@Column()
 	name!: string;
 
-	/** Mã khách hàng */
-	@ApiProperty({ description: 'Mã khách hàng' })
+	/** Tên tài khoản */
+	@ApiProperty({ description: 'Tên tài khoản' })
 	@Column({ unique: true })
-	clientKey!: string;
+	username!: string;
 
-	/** Mã bí mật */
-	@ApiProperty({ description: 'Mã bí mật' })
+	/** Mật khẩu */
+	@ApiHideProperty()
 	@Column()
-	secretKey!: string;
+	@Exclude()
+	password!: string;
+
+	@BeforeInsert()
+	async beforeInsert() {
+		this.password = await argon2.hash(this.password);
+	}
 }

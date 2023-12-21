@@ -23,7 +23,7 @@ export class AdminJwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
 		const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
 		if (!token) throw new UnauthorizedException('Missing token');
 		await this.authService.validateToken(token, payload.id);
-		await this.authService.validateById(payload.id, 'admin');
+		await this.authService.validateById('admin', payload.id);
 		return { adminId: payload.id, type: payload.type, token };
 	}
 }

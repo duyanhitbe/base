@@ -6,23 +6,24 @@ import { IAuthService } from './auth.interface';
 
 @Injectable()
 export class AuthService extends IAuthService {
-	getJwtPayload(
-		user: AdminEntity | ApplicationEntity | MerchantEntity,
-		type: UserType
-	): JWTPayload {
+	getJwtPayload(user: User, type: UserType): JWTPayload {
 		let payload: JWTPayload | null = null;
 		switch (type) {
 			case 'admin':
-				user = user as AdminEntity;
-				payload = { id: user.id, type };
+				const adminUser = user as AdminEntity;
+				payload = { id: adminUser.id, type };
 				break;
 			case 'application':
-				user = user as ApplicationEntity;
-				payload = { id: user.id, type };
+				const applicationUser = user as ApplicationEntity;
+				payload = { id: applicationUser.id, type };
 				break;
 			case 'merchant':
-				user = user as MerchantEntity;
-				payload = { id: user.id, applicationId: user.applicationId, type };
+				const merchantUser = user as MerchantEntity;
+				payload = {
+					id: merchantUser.id,
+					applicationId: merchantUser.applicationId,
+					type
+				};
 				break;
 		}
 		if (!payload) throw new UnauthorizedException('invalid user');

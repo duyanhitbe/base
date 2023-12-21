@@ -23,7 +23,7 @@ export class ApplicationJwtStrategy extends PassportStrategy(Strategy, 'applicat
 		const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
 		if (!token) throw new UnauthorizedException('Missing token');
 		await this.authService.validateToken(token, payload.id);
-		await this.authService.validateById(payload.id, 'application');
+		await this.authService.validateById('application', payload.id);
 		return { applicationId: payload.id, type: payload.type, token };
 	}
 }

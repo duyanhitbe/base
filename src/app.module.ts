@@ -1,15 +1,12 @@
 import { ApisModule } from '@apis/apis.module';
 import { LoggerMiddleware } from '@common';
+import { CronModule, DatabaseModule, I18NModule, MailModule, RedisModule } from '@modules';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { providers } from './app.provider';
-import { CronModule } from './modules/cron/cron.module';
-import { DatabaseModule } from './modules/database/database.module';
-import { I18NModule } from './modules/i18n/i18n.module';
-import { RedisModule } from './modules/redis/redis.module';
 
 @Module({
 	imports: [
@@ -29,6 +26,7 @@ import { RedisModule } from './modules/redis/redis.module';
 		CronModule,
 		RedisModule,
 		I18NModule,
+		MailModule,
 		ApisModule
 	],
 	controllers: [AppController],
