@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Init1703145694807 } from './migrations/1703145694807-init';
 
 @Module({
 	imports: [
@@ -15,7 +16,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 				database: configService.get<string>('DB_NAME'),
 				schema: configService.get<string>('DB_SCHEMA'),
 				synchronize: false,
-				autoLoadEntities: true
+				autoLoadEntities: true,
+				migrations: [Init1703145694807],
+				migrationsRun: true,
+				migrationsTableName: 'migrations'
 			})
 		})
 	]
